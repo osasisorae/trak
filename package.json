@@ -1,0 +1,25 @@
+{
+  "name": "trak",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "trak": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.7",
+    "openai": "^4.77.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "fast-check": "^3.15.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
