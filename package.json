@@ -17,6 +17,7 @@
     "openai": "^4.77.3"
   },
   "devDependencies": {
+    "@types/chokidar": "^1.7.5",
     "@types/node": "^20.11.0",
     "fast-check": "^3.15.0",
     "typescript": "^5.3.3",
