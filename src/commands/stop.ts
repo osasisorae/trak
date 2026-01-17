@@ -17,7 +17,7 @@ export async function stopCommand() {
     process.exit(1);
   }
 
-  console.log('⏳ Generating summary...');
+  console.log('⏳ Analyzing code and generating summary...');
 
   const fileContents = new Map<string, string>();
   for (const change of session.changes) {
@@ -33,15 +33,15 @@ export async function stopCommand() {
   }
 
   const summaryGenerator = createSummaryGenerator();
-  const summary = await summaryGenerator.generateSummary(session, fileContents);
+  const { summary, analysis } = await summaryGenerator.generateSummary(session, fileContents);
 
   const stoppedSession = sessionManager.stopSession();
   
   if (stoppedSession) {
-    const sessionWithSummary = { ...stoppedSession, summary };
+    const sessionWithAnalysis = { ...stoppedSession, summary, analysis };
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
     const sessionPath = join(session.cwd, '.trak', 'sessions', `${timestamp}-session.json`);
-    writeFileSync(sessionPath, JSON.stringify(sessionWithSummary, null, 2));
+    writeFileSync(sessionPath, JSON.stringify(sessionWithAnalysis, null, 2));
 
     const start = new Date(session.startTime);
     const end = new Date();
@@ -58,9 +58,34 @@ export async function stopCommand() {
     console.log('─────────────────────');
     console.log(`Duration: ${duration}`);
     console.log(`Files: ${added} added, ${modified} modified, ${deleted} deleted`);
+    
+    // Display code analysis results
+    if (analysis.issues.length > 0) {
+      console.log(`\n🔍 Code Analysis:`);
+      console.log(`   Quality Score: ${analysis.metrics.qualityScore}/100`);
+      console.log(`   Issues Found: ${analysis.issues.length} (${analysis.metrics.issueCount.high} high, ${analysis.metrics.issueCount.medium} medium, ${analysis.metrics.issueCount.low} low)`);
+      
+      // Show top 3 issues
+      const topIssues = analysis.issues.slice(0, 3);
+      if (topIssues.length > 0) {
+        console.log('\n   Top Issues:');
+        topIssues.forEach(issue => {
+          const severityIcon = issue.severity === 'high' ? '🔴' : issue.severity === 'medium' ? '🟡' : '🟢';
+          console.log(`   ${severityIcon} ${issue.type}: ${issue.description}`);
+          console.log(`      📁 ${issue.filePath}:${issue.lineNumber}`);
+        });
+      }
+    } else {
+      console.log(`\n✅ Code Analysis: No issues detected (Quality Score: ${analysis.metrics.qualityScore}/100)`);
+    }
+    
     console.log('');
     console.log(summary);
     console.log('─────────────────────');
     console.log(`✅ Session saved to .trak/sessions/${timestamp}-session.json`);
+    
+    if (analysis.issues.length > 0) {
+      console.log(`💡 Run "trak dev" to view detailed analysis in the dashboard`);
+    }
   }
 }
