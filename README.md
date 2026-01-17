@@ -499,7 +499,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- OpenAI for GPT API
+- Kiro Team for providing 2500 free credits during the Dynamous × Kiro AI Coding Hackathon
 - The Kiro CLI team for MCP integration
 - All contributors and beta testers
 
