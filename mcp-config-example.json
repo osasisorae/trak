@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "trak": {
+      "command": "node",
+      "args": ["/path/to/your/trak/dist/mcp-server.js"],
+      "env": {
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "GITHUB_TOKEN": "your_github_token_here"
+      }
+    }
+  }
+}

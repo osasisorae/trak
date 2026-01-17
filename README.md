@@ -77,3 +77,53 @@ This error occurs when the GitHub token doesn't have sufficient permissions or w
 ## How it works
 
 `trak` watches file changes during your coding session and uses AI to generate a summary of what you worked on when you stop tracking.
+
+## MCP Integration
+
+Trak includes a Model Context Protocol (MCP) server that allows AI assistants to control trak sessions automatically.
+
+### Available MCP Tools
+
+1. **trak_start_session** - Start tracking a session
+2. **trak_stop_session** - Stop session and generate analysis  
+3. **trak_get_status** - Get current session status
+4. **trak_get_session_history** - Query past sessions
+5. **trak_analyze_session** - Get detailed analysis of specific session
+6. **trak_create_github_issue** - Create GitHub issues from detected code problems
+
+### Setup for AI Assistants
+
+1. **Build the project**: `npm run build`
+2. **Test the MCP server**: `npm run mcp-server`
+3. **Configure your AI assistant** using the example in `mcp-config-example.json`
+
+For Kiro CLI, add to your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "trak": {
+      "command": "node",
+      "args": ["/absolute/path/to/trak/dist/mcp-server.js"],
+      "env": {
+        "OPENAI_API_KEY": "your_openai_api_key_here",
+        "GITHUB_TOKEN": "your_github_token_here"
+      }
+    }
+  }
+}
+```
+
+This allows AI assistants to automatically start/stop trak sessions, analyze code quality, and integrate development tracking into their workflows.
+
+### Testing MCP Integration
+
+You can test the MCP server manually:
+
+```bash
+# List available tools
+echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | npm run mcp-server
+
+# Get current status
+echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "trak_get_status", "arguments": {}}}' | npm run mcp-server
+```

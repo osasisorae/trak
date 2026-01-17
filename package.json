@@ -8,9 +8,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "mcp-server": "node dist/mcp-server.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@octokit/rest": "^22.0.1",
     "chokidar": "^4.0.3",
     "commander": "^12.1.0",
