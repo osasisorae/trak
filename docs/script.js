@@ -7,10 +7,12 @@ async function fetchGitHubStars() {
         
         // Update star counts
         document.getElementById('github-stars').textContent = `⭐ ${stars}`;
-        document.getElementById('github-stars-count').textContent = stars;
+        const footerStars = document.getElementById('footer-stars');
+        if (footerStars) {
+            footerStars.textContent = `⭐ ${stars} Star on GitHub`;
+        }
     } catch (error) {
         console.log('Could not fetch GitHub stars');
-        document.getElementById('github-stars-count').textContent = '⭐';
     }
 }
 
@@ -21,24 +23,46 @@ function scrollToWaitlist() {
     });
 }
 
-// Demo video placeholder
-function playDemo() {
-    const videoPlaceholder = document.querySelector('.video-placeholder');
+// Video demo functions
+function playHeroVideo() {
+    const videoContainer = document.querySelector('.video-preview');
     const overlay = document.querySelector('.video-overlay');
-    const playButton = document.querySelector('.play-button');
+    const playButton = document.querySelector('.play-button-large');
     
-    // For now, just show a message since we don't have a real video
+    // For demo purposes, show message
     overlay.innerHTML = `
-        <h3>Demo Coming Soon!</h3>
-        <p>Check out the <a href="https://github.com/osasisorae/trak/blob/main/DEMO.md" target="_blank" style="color: white; text-decoration: underline;">demo script</a> for now</p>
+        <h3>Demo Video Coming Soon!</h3>
+        <p>Check out our <a href="https://github.com/osasisorae/trak/blob/main/DEMO.md" target="_blank" style="color: white; text-decoration: underline;">demo script</a> for now</p>
     `;
     playButton.style.display = 'none';
-    
-    // In a real implementation, you would embed a video here
-    // videoPlaceholder.innerHTML = '<iframe src="demo-video.mp4" ...></iframe>';
 }
 
-// Waitlist form submission
+function playMainDemo() {
+    const videoContainer = document.querySelector('.video-container');
+    const videoInfo = document.querySelector('.video-info');
+    const playButton = document.querySelector('.play-button-xl');
+    
+    // For demo purposes, show message
+    videoInfo.innerHTML = `
+        <h3>Full Demo Coming Soon!</h3>
+        <p>Check out our <a href="https://github.com/osasisorae/trak/blob/main/DEMO.md" target="_blank" style="color: white; text-decoration: underline;">demo script</a> for now</p>
+        <span class="video-duration">Available Soon</span>
+    `;
+    playButton.style.display = 'none';
+}
+
+function playFeatureDemo(feature) {
+    // For demo purposes, just show an alert
+    const featureNames = {
+        'dashboard': 'Team Dashboard Demo',
+        'ai-insights': 'AI Usage Insights Demo', 
+        'quality-gates': 'Quality Gates Demo'
+    };
+    
+    alert(`${featureNames[feature]} coming soon! Check out our GitHub repo for more details.`);
+}
+
+// Enhanced waitlist form submission
 async function submitWaitlist(event) {
     event.preventDefault();
     
@@ -49,42 +73,43 @@ async function submitWaitlist(event) {
     
     // Show loading state
     submitButton.classList.add('loading');
-    submitText.textContent = 'Joining...';
+    submitText.textContent = 'Joining waitlist...';
     
     try {
-        // For demo purposes, we'll simulate a successful submission
-        // In production, you'd send this to your backend or a service like Netlify Forms
-        
+        // Collect enhanced form data
         const data = {
             name: formData.get('name'),
             email: formData.get('email'),
             company: formData.get('company'),
+            role: formData.get('role'),
             team_size: formData.get('team_size'),
-            timestamp: new Date().toISOString()
+            ai_tools: formData.get('ai_tools'),
+            timestamp: new Date().toISOString(),
+            source: 'landing_page'
         };
         
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // For now, just log to console (in production, send to your backend)
-        console.log('Waitlist submission:', data);
+        console.log('Enhanced waitlist submission:', data);
         
         // Show success state
         submitButton.classList.remove('loading');
         submitButton.classList.add('success');
-        submitText.textContent = 'Welcome to the waitlist!';
+        submitText.textContent = 'Welcome to the beta program!';
         
         // Reset form
         form.reset();
         
-        // Show success message
-        showNotification('Thanks for joining! We\'ll be in touch soon.', 'success');
+        // Show success notification
+        showNotification('🎉 You\'re on the list! We\'ll be in touch with early access details soon.', 'success');
         
-        // Reset button after 3 seconds
+        // Reset button after 4 seconds
         setTimeout(() => {
             submitButton.classList.remove('success');
-            submitText.textContent = 'Join Waitlist';
-        }, 3000);
+            submitText.textContent = 'Get Early Access - 50% Off';
+        }, 4000);
         
     } catch (error) {
         // Show error state
@@ -97,30 +122,31 @@ async function submitWaitlist(event) {
         // Reset button after 3 seconds
         setTimeout(() => {
             submitButton.classList.remove('error');
-            submitText.textContent = 'Join Waitlist';
+            submitText.textContent = 'Get Early Access - 50% Off';
         }, 3000);
     }
 }
 
-// Notification system
+// Enhanced notification system
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+    notification.innerHTML = message;
     
     // Style the notification
     Object.assign(notification.style, {
         position: 'fixed',
-        top: '20px',
+        top: '100px',
         right: '20px',
         padding: '1rem 1.5rem',
-        borderRadius: '8px',
+        borderRadius: '12px',
         color: 'white',
         fontWeight: '500',
         zIndex: '9999',
         transform: 'translateX(100%)',
         transition: 'transform 0.3s ease-out',
-        maxWidth: '400px'
+        maxWidth: '400px',
+        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
     });
     
     // Set background color based on type
@@ -138,13 +164,15 @@ function showNotification(message, type = 'info') {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
-    // Remove after 5 seconds
+    // Remove after 6 seconds
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
         setTimeout(() => {
-            document.body.removeChild(notification);
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
         }, 300);
-    }, 5000);
+    }, 6000);
 }
 
 // Intersection Observer for animations
@@ -164,7 +192,10 @@ function setupAnimations() {
     }, observerOptions);
     
     // Observe elements for animation
-    const animatedElements = document.querySelectorAll('.problem-card, .feature-section, .demo-feature');
+    const animatedElements = document.querySelectorAll(
+        '.solution-feature, .testimonial-card, .pricing-card, .demo-feature-card'
+    );
+    
     animatedElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
@@ -196,12 +227,12 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Add scroll effect to navigation
+// Enhanced scroll effect for navigation
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('.nav');
-    if (window.scrollY > 100) {
+    if (window.scrollY > 50) {
         nav.style.background = 'rgba(255, 255, 255, 0.98)';
-        nav.style.boxShadow = '0 1px 3px 0 rgb(0 0 0 / 0.1)';
+        nav.style.boxShadow = '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)';
     } else {
         nav.style.background = 'rgba(255, 255, 255, 0.95)';
         nav.style.boxShadow = 'none';
