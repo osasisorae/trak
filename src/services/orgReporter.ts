@@ -33,10 +33,11 @@ export async function sendSessionReport(sessionData: any, config: TrakConfig): P
 
   const maxRetries = 3;
   const baseDelay = 1000; // 1 second
+  const url = `${config.orgEndpoint}/api/sessions`;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await fetch(`${config.orgEndpoint}/api/sessions`, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,8 +72,11 @@ export async function sendSessionReport(sessionData: any, config: TrakConfig): P
   return false;
 }
 
-function calculateDuration(start: Date, end: Date): string {
-  const duration = end.getTime() - start.getTime();
+function calculateDuration(start: Date | string, end: Date | string): string {
+  const startTime = start instanceof Date ? start : new Date(start);
+  const endTime = end instanceof Date ? end : new Date(end);
+  
+  const duration = endTime.getTime() - startTime.getTime();
   const minutes = Math.floor(duration / 60000);
   const hours = Math.floor(minutes / 60);
   
