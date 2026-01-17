@@ -422,6 +422,115 @@ h4 {
     font-size: 1rem;
 }
 
+/* Comparison Section */
+.comparison {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.comparison-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.comparison-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    background: linear-gradient(135deg, #14b8a6, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.comparison-header p {
+    font-size: 1.25rem;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.comparison-table {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.comparison-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.comparison-row:last-child {
+    border-bottom: none;
+}
+
+.comparison-row.header {
+    background: linear-gradient(135deg, #14b8a6, #3b82f6);
+    color: white;
+    font-weight: 600;
+}
+
+.comparison-row > div {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-right: 1px solid #e2e8f0;
+}
+
+.comparison-row > div:last-child {
+    border-right: none;
+}
+
+.comparison-row.header > div {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.feature-name {
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.insightful {
+    color: #64748b;
+}
+
+.trak {
+    color: #059669;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .comparison-table {
+        margin: 0 1rem;
+    }
+    
+    .comparison-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-row > div {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .comparison-row > div:last-child {
+        border-bottom: none;
+    }
+    
+    .comparison-row:not(.header) .feature-name {
+        background: #14b8a6;
+        color: white;
+        font-weight: 600;
+    }
+}
+
 /* Problem Section */
 .problem {
     padding: 100px 0;
