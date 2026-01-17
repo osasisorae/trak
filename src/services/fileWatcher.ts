@@ -1,19 +1,35 @@
 import { EventEmitter } from 'events';
 import chokidar, { FSWatcher } from 'chokidar';
 
+/**
+ * Represents a file system change event
+ */
 export interface FileChange {
+  /** Type of change: file added, modified, or deleted */
   type: 'add' | 'change' | 'unlink';
+  /** Relative path to the changed file */
   path: string;
+  /** When the change occurred */
   timestamp: Date;
 }
 
+/**
+ * Configuration options for the FileWatcher
+ */
 export interface FileWatcherConfig {
+  /** Glob patterns for files to watch */
   patterns: string[];
+  /** Glob patterns for files/directories to exclude */
   excludePatterns: string[];
+  /** Milliseconds to wait before emitting change events */
   debounceMs: number;
+  /** Working directory to watch from */
   cwd: string;
 }
 
+/**
+ * Watches file system changes and emits events for tracked files
+ */
 export class FileWatcher extends EventEmitter {
   private watcher?: FSWatcher;
   private config: FileWatcherConfig;
@@ -22,6 +38,7 @@ export class FileWatcher extends EventEmitter {
   constructor(config: FileWatcherConfig) {
     super();
     this.config = config;
+    // Extract file extensions from patterns for efficient filtering
     this.extensions = this.extractExtensions(config.patterns);
   }
 
@@ -84,7 +101,7 @@ export class FileWatcher extends EventEmitter {
 
 export function createFileWatcher(overrides?: Partial<FileWatcherConfig>): FileWatcher {
   const config: FileWatcherConfig = {
-    patterns: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.go', '**/*.rs'],
+    patterns: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.go', '**/*.rs', '**/*.md'],
     excludePatterns: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/*.test.*'],
     debounceMs: 300,
     cwd: process.cwd(),

@@ -259,30 +259,128 @@ kiro-cli chat
 
 ## 🏢 Organization Dashboard (Demo)
 
-For hackathon demonstration, run a mock organization server:
+For hackathon demonstration, you can run a mock organization server to see how trak integrates with team dashboards.
+
+### Step 1: Start the Organization Server
+
+**IMPORTANT**: You must start the organization server FIRST before configuring trak.
 
 ```bash
-# Install dependencies and run mock server
+# Navigate to demo directory and start the mock server
 cd demo
-npm init -y
-npm install express
 node mock-org-server.js
 ```
 
-Then login to trak with the mock server:
+You should see this output:
+```
+🏢 Mock Organization Server running on http://localhost:3001
+📡 Ready to receive session reports from trak clients
+💡 Use TRAK_ORG_ENDPOINT=http://localhost:3001/report when logging in
+```
+
+**Keep this terminal open** - the server must be running for trak to send reports.
+
+### Step 2: Configure Trak Environment
+
+Update your `.env` file to include the organization endpoint:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+GITHUB_TOKEN=your_github_token_here
+TRAK_ORG_ENDPOINT=http://localhost:3001
+```
+
+⚠️ **Important**: Use `http://localhost:3001` (base URL only). Trak automatically adds `/api/sessions` to the endpoint.
+
+### Step 3: Login to Organization
 
 ```bash
-# Set environment variable to use local mock server
-export TRAK_ORG_ENDPOINT=http://localhost:3001
+# Clear any existing configuration first
+trak logout
 
-# Login with any token (for demo)
+# Login with demo token
 trak login demo-token-123
+```
 
-# Your sessions will now be sent to the mock server
+You'll be prompted to enter:
+- **Your name**: Enter any name (e.g., "John Doe")
+- **Developer ID**: Enter any email or username (e.g., "john@company.com")
+
+### Step 4: Verify Configuration
+
+```bash
+trak status
+```
+
+You should see:
+```
+🔐 Authentication Status
+─────────────────────
+✅ Logged in as: John Doe (john@company.com)
+🏢 Organization: http://localhost:3001
+📅 Last login: 1/17/2026, 2:15:30 AM
+```
+
+### Step 5: Test the Integration
+
+Now you can test the full workflow:
+
+```bash
+# Start tracking a session
 trak start
-# ... make some code changes ...
+
+# Make some code changes (edit any .ts/.js/.py file in your project)
+# The changes will be automatically detected
+
+# Stop session and generate report
 trak stop
 ```
+
+### Verify It's Working
+
+**In the trak terminal**, you should see:
+```
+✅ Session report sent to organization
+```
+
+**In the organization server terminal**, you should see:
+```
+📊 New Session Report Received
+─────────────────────────────
+👤 Developer: John Doe (john@company.com)
+🆔 Session ID: 1768651234567
+⏰ Timestamp: 2026-01-17T12:00:00.000Z
+⏱️  Duration: 5m
+📁 Files Changed: 2
+📊 Quality Score: 85/100
+🔍 Issues Found: 3
+📝 Summary: Session analysis summary...
+```
+
+### Troubleshooting
+
+**"Failed to connect to localhost port 3001"**
+- The organization server is not running
+- Start the server first: `cd demo && node mock-org-server.js`
+
+**"Could not send session report"**
+- Make sure the organization server is running BEFORE you run `trak stop`
+- Check that the server terminal shows it's listening on port 3001
+
+**Configuration not updating**
+- Trak caches organization settings
+- Always run `trak logout` then `trak login` after changing `TRAK_ORG_ENDPOINT`
+
+**Wrong endpoint error**
+- Use `http://localhost:3001` as the base URL (not `/api/sessions`)
+- Restart both the server and re-login to trak
+
+### Important Notes
+
+- **Server must run first**: Always start `node mock-org-server.js` before configuring trak
+- **Keep server running**: The organization server must stay running during your trak sessions
+- **Memory storage**: The mock server stores reports in memory only (resets on restart)
+- **Demo purposes**: This is a demonstration server - real organization servers would use persistent storage
 
 ## ⚙️ Configuration
 
@@ -408,3 +506,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Built with ❤️ for developers who care about code quality**
+
+<!-- Updated: 2026-01-17 13:20 - README tracking now works! -->

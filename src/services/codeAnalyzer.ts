@@ -82,21 +82,34 @@ export class CodeAnalyzer {
   }
 
   private getSystemPrompt(): string {
-    return `You are an expert code reviewer that identifies quality issues, security vulnerabilities, and performance problems.
+    return `You are a senior software engineer conducting a thorough code review. Your goal is to identify meaningful quality issues and provide detailed, actionable feedback.
 
-Detect 5 types of issues:
-1. **Complexity**: High cyclomatic complexity, deep nesting, long functions
-2. **Duplication**: Similar code blocks, repeated patterns
-3. **Error Handling**: Missing try-catch, unhandled promises
-4. **Security**: SQL injection, XSS vulnerabilities, hardcoded secrets
-5. **Performance**: Inefficient loops, memory leaks, blocking operations
+**Issue Categories to Detect:**
+1. **Complexity**: High cyclomatic complexity, deeply nested code, overly long functions, complex conditional logic
+2. **Duplication**: Repeated code blocks, similar patterns that could be abstracted, copy-paste programming
+3. **Error Handling**: Missing try-catch blocks, unhandled promises, inadequate error recovery, silent failures
+4. **Security**: SQL injection risks, XSS vulnerabilities, hardcoded secrets, insecure data handling
+5. **Performance**: Inefficient algorithms, memory leaks, blocking operations, unnecessary computations
 
-Categorize by severity: high (critical), medium (important), low (nice-to-have)
-Provide specific file paths and line numbers
-Generate actionable improvement suggestions
-Focus on real issues, avoid false positives
+**Quality Standards:**
+- Only report genuine issues that impact code maintainability, security, or performance
+- Avoid nitpicking style issues unless they significantly affect readability
+- Focus on issues that would matter in a production codebase
+- Prioritize high-impact problems over minor improvements
 
-Return valid JSON only with this structure:
+**Issue Description Requirements:**
+- Each description must be at least 3 complete sentences
+- First sentence: Clearly state what the problem is
+- Second sentence: Explain why this is problematic or what risks it introduces
+- Third sentence: Describe the potential impact or consequences
+- Use technical language appropriate for experienced developers
+
+**Severity Guidelines:**
+- **High**: Critical security vulnerabilities, major performance issues, code that could cause system failures
+- **Medium**: Maintainability problems, moderate performance issues, error handling gaps
+- **Low**: Minor optimizations, style improvements that aid readability
+
+Return valid JSON only with this exact structure:
 {
   "issues": [
     {
@@ -105,8 +118,8 @@ Return valid JSON only with this structure:
       "severity": "high|medium|low",
       "filePath": "src/path/to/file.ts",
       "lineNumber": 42,
-      "description": "Clear description of the issue",
-      "suggestion": "Actionable improvement suggestion"
+      "description": "Detailed 3+ sentence description of the issue and its implications",
+      "suggestion": "Specific, actionable recommendation for fixing the issue"
     }
   ],
   "metrics": {
@@ -114,7 +127,7 @@ Return valid JSON only with this structure:
     "complexity": 12,
     "duplication": 5
   },
-  "summary": "Brief analysis summary"
+  "summary": "Professional summary of the overall code quality and key findings"
 }`;
   }
 
@@ -125,16 +138,24 @@ Return valid JSON only with this structure:
       .map(([path, content]) => `### ${path}\n\`\`\`\n${content.slice(0, 2000)}\n\`\`\``)
       .join('\n\n');
 
-    return `Analyze the following code changes for quality issues:
+    return `Conduct a thorough code review of the following changes from a development session:
 
-**Programming Languages**: ${languages.join(', ')}
-**Project Context**: CLI tool for session tracking
+**Project Context**: TypeScript CLI tool for development session tracking
+**Languages**: ${languages.join(', ')}
 **Session Duration**: ${this.formatDuration(session)}
+**Files Changed**: ${session.changes.length}
 
-**Files to Analyze**:
+**Code to Review**:
 ${filesData}
 
-Please identify issues in the 5 categories (complexity, duplication, error-handling, security, performance) and return the structured JSON response.`;
+**Review Focus Areas:**
+- Look for actual code quality issues, not style preferences
+- Identify security vulnerabilities and error handling gaps
+- Find performance bottlenecks and complexity issues
+- Spot code duplication that should be refactored
+- Ensure each issue description is detailed (3+ sentences minimum)
+
+Provide a professional code review with specific, actionable feedback in the required JSON format.`;
   }
 
   private detectLanguages(fileContents: Map<string, string>): string[] {

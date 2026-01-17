@@ -20,21 +20,53 @@ export async function loginCommand(orgToken: string): Promise<void> {
       process.exit(1);
     }
 
-    // Prompt for developer info
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+    let developerName: string;
+    let developerId: string;
 
-    const developerName = await new Promise<string>((resolve) => {
-      rl.question('Enter your name: ', resolve);
-    });
+    // Check if input is piped (for testing)
+    if (!process.stdin.isTTY) {
+      // Read from piped input
+      const input = await new Promise<string>((resolve) => {
+        let data = '';
+        process.stdin.on('data', (chunk) => {
+          data += chunk.toString();
+        });
+        process.stdin.on('end', () => {
+          resolve(data);
+        });
+      });
+      
+      const lines = input.trim().split('\n');
+      if (lines.length >= 2) {
+        developerName = lines[0].trim();
+        developerId = lines[1].trim();
+        console.log('Enter your name: ' + developerName);
+        console.log('Enter your developer ID (email or username): ' + developerId);
+      } else {
+        console.error('❌ Invalid input format. Expected name and developer ID on separate lines.');
+        process.exit(1);
+      }
+    } else {
+      // Interactive mode
+      const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
 
-    const developerId = await new Promise<string>((resolve) => {
-      rl.question('Enter your developer ID (email or username): ', resolve);
-    });
+      developerName = await new Promise<string>((resolve) => {
+        rl.question('Enter your name: ', (answer) => {
+          resolve(answer);
+        });
+      });
 
-    rl.close();
+      developerId = await new Promise<string>((resolve) => {
+        rl.question('Enter your developer ID (email or username): ', (answer) => {
+          resolve(answer);
+        });
+      });
+
+      rl.close();
+    }
 
     if (!developerName.trim() || !developerId.trim()) {
       console.error('❌ Developer name and ID are required.');
