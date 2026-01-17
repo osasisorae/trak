@@ -50,12 +50,29 @@ GITHUB_TOKEN=your_github_token_here
 ```
 
 **To get a GitHub token:**
-1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Click "Generate new token (classic)"
+1. Go to GitHub Settings → Developer settings → Personal access tokens → **Tokens (classic)**
+2. Click "Generate new token (classic)" (**Important: Use classic tokens, not fine-grained**)
 3. Select scopes: `repo` (for private repos) or `public_repo` (for public repos only)
 4. Copy the token and add it to your `.env` file
 
 Without this token, you can still view code analysis but won't be able to create GitHub issues directly from the dashboard.
+
+### Troubleshooting GitHub Integration
+
+**Error: "Resource not accessible by personal access token"**
+
+This error occurs when the GitHub token doesn't have sufficient permissions or when using fine-grained tokens instead of classic tokens. To fix:
+
+1. **Use classic tokens**: Make sure you created a "Token (classic)" not a "Fine-grained personal access token"
+2. **Check token scopes**: Your token needs `repo` scope (full repository access) or `public_repo` scope (for public repositories only)
+2. **Regenerate token**: Go to GitHub Settings → Developer settings → Personal access tokens
+3. **Select correct scopes**: 
+   - For private repos: Check `repo` (this includes issues, pull requests, etc.)
+   - For public repos: Check `public_repo` 
+4. **Update .env file**: Replace the old token with the new one
+5. **Restart trak dev**: The server needs to restart to pick up the new token
+
+**Note**: Fine-grained personal access tokens may have different permission requirements. Classic tokens are recommended for simplicity.
 
 ## How it works
 
