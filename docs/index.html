@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trak - AI-Powered Development Tracking</title>
+    <meta name="description" content="Open-source tool that monitors code quality, AI usage, and developer productivity in real-time. Perfect for teams using AI assistants.">
+    <meta name="keywords" content="development tracking, code quality, AI assistant, team productivity, developer tools">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Trak - AI-Powered Development Tracking">
+    <meta property="og:description" content="Track your team's AI-powered development in real-time">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://osasisorae.github.io/trak">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="../public/logo.svg" alt="Trak" class="nav-logo">
+                <span class="nav-title">trak</span>
+            </div>
+            <div class="nav-links">
+                <a href="#demo" class="nav-link">Demo</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="https://github.com/osasisorae/trak" class="nav-link" target="_blank">
+                    <span>GitHub</span>
+                    <span class="github-stars" id="github-stars">⭐</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Track Your Team's <span class="gradient-text">AI-Powered Development</span> in Real-Time
+                </h1>
+                <p class="hero-subtitle">
+                    Open-source tool that monitors code quality, AI usage, and developer productivity. 
+                    Get insights into how your team codes with AI assistants like Kiro, Copilot, and more.
+                </p>
+                <div class="hero-ctas">
+                    <button class="btn btn-primary" onclick="scrollToWaitlist()">
+                        Join Waitlist
+                        <span class="btn-icon">→</span>
+                    </button>
+                    <a href="https://github.com/osasisorae/trak" class="btn btn-secondary" target="_blank">
+                        <span class="btn-icon">⭐</span>
+                        Star on GitHub
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="github-stars-count">Loading...</span>
+                        <span class="stat-label">GitHub Stars</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">18+</span>
+                        <span class="stat-label">Languages Supported</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">AI Tools</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="dashboard-preview">
+                    <div class="dashboard-header">
+                        <div class="dashboard-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="dashboard-title">Trak Dashboard</span>
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="quality-score">
+                            <div class="score-circle">
+                                <span class="score-number">78</span>
+                                <span class="score-label">/100</span>
+                            </div>
+                            <span class="score-text">Quality Score</span>
+                        </div>
+                        <div class="issues-list">
+                            <div class="issue-item high">
+                                <span class="issue-icon">🔴</span>
+                                <span class="issue-text">Security: Hardcoded API key</span>
+                            </div>
+                            <div class="issue-item medium">
+                                <span class="issue-icon">🟡</span>
+                                <span class="issue-text">Complexity: Deep nesting</span>
+                            </div>
+                            <div class="issue-item low">
+                                <span class="issue-icon">🟢</span>
+                                <span class="issue-text">Style: Unused variable</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem/Solution Section -->
+    <section class="problem-solution">
+        <div class="container">
+            <div class="section-header">
+                <h2>The AI Development Challenge</h2>
+                <p>Teams are coding with AI assistants, but managers have no visibility into the impact</p>
+            </div>
+            <div class="problems-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">❓</div>
+                    <h3>No Visibility</h3>
+                    <p>Teams use AI assistants like Kiro and Copilot, but you can't see the quality impact or productivity patterns</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">📉</div>
+                    <h3>Quality Unknown</h3>
+                    <p>Code quality issues go unnoticed until too late. No real-time insights into what's being built</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🔍</div>
+                    <h3>No Analytics</h3>
+                    <p>No data on developer productivity, AI effectiveness, or team coding patterns</p>
+                </div>
+            </div>
+            <div class="solution">
+                <h3>Trak Provides Answers</h3>
+                <div class="solution-features">
+                    <div class="feature">✅ Real-time code quality monitoring</div>
+                    <div class="feature">✅ AI usage analytics and patterns</div>
+                    <div class="feature">✅ Team productivity insights</div>
+                    <div class="feature">✅ Privacy-focused (only metadata shared)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video Section -->
+    <section class="demo" id="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2>See Trak in Action</h2>
+                <p>Watch how trak automatically tracks development sessions and provides intelligent insights</p>
+            </div>
+            <div class="demo-video">
+                <div class="video-placeholder">
+                    <div class="play-button" onclick="playDemo()">
+                        <span class="play-icon">▶</span>
+                    </div>
+                    <div class="video-overlay">
+                        <h3>Trak Demo</h3>
+                        <p>See automatic session tracking, AI-powered analysis, and team insights</p>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-features">
+                <div class="demo-feature">
+                    <span class="demo-icon">🚀</span>
+                    <span>Automatic session tracking</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-icon">🤖</span>
+                    <span>AI-powered code analysis</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-icon">📊</span>
+                    <span>Real-time quality insights</span>
+                </div>
+                <div class="demo-feature">
+                    <span class="demo-icon">🔗</span>
+                    <span>GitHub integration</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-section managers">
+                    <div class="feature-header">
+                        <h2>Built for Engineering Leaders</h2>
+                        <p>Get the insights you need to manage AI-powered development teams</p>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <div>
+                                <h4>Team Quality Trends</h4>
+                                <p>Track code quality patterns across your team and projects</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🤖</span>
+                            <div>
+                                <h4>AI Assistant Analytics</h4>
+                                <p>Monitor how AI tools impact productivity and code quality</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔒</span>
+                            <div>
+                                <h4>Privacy-Focused</h4>
+                                <p>Only metadata is shared - never your actual code</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">⚡</span>
+                            <div>
+                                <h4>Real-Time Insights</h4>
+                                <p>Get immediate feedback on development patterns and quality</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="waitlist-cta">
+                        <button class="btn btn-primary" onclick="scrollToWaitlist()">
+                            Get Early Access
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feature-section developers">
+                    <div class="feature-header">
+                        <h2>Open Source & Developer-Friendly</h2>
+                        <p>Install and use immediately - integrates with your existing workflow</p>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">⚡</span>
+                            <div>
+                                <h4>Quick Setup</h4>
+                                <p>npm install and you're tracking sessions in minutes</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔗</span>
+                            <div>
+                                <h4>AI Assistant Integration</h4>
+                                <p>Works seamlessly with Kiro, Copilot, and other AI tools</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <div>
+                                <h4>Beautiful Dashboard</h4>
+                                <p>Modern web interface with detailed insights and GitHub integration</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🛠️</span>
+                            <div>
+                                <h4>Extensible</h4>
+                                <p>MCP server, hooks, and APIs for custom integrations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="github-cta">
+                        <a href="https://github.com/osasisorae/trak" class="btn btn-secondary" target="_blank">
+                            <span class="btn-icon">⭐</span>
+                            Star on GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waitlist Section -->
+    <section class="waitlist" id="waitlist">
+        <div class="container">
+            <div class="waitlist-content">
+                <h2>Join 500+ Engineering Leaders</h2>
+                <p>Be first to access team analytics when we launch the full platform</p>
+                <form class="waitlist-form" id="waitlist-form" onsubmit="submitWaitlist(event)">
+                    <div class="form-row">
+                        <input type="text" name="name" placeholder="Your Name" required>
+                        <input type="email" name="email" placeholder="Work Email" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" name="company" placeholder="Company" required>
+                        <select name="team_size" required>
+                            <option value="">Team Size</option>
+                            <option value="1-5">1-5 developers</option>
+                            <option value="6-20">6-20 developers</option>
+                            <option value="21-50">21-50 developers</option>
+                            <option value="50+">50+ developers</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span id="submit-text">Join Waitlist</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </form>
+                <p class="waitlist-note">
+                    We'll notify you when team analytics are ready. No spam, unsubscribe anytime.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../public/logo.svg" alt="Trak" class="footer-logo">
+                    <span class="footer-title">trak</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/osasisorae/trak" target="_blank">GitHub</a>
+                    <a href="https://github.com/osasisorae/trak/blob/main/README.md" target="_blank">Documentation</a>
+                    <a href="https://github.com/osasisorae/trak/blob/main/DEMO.md" target="_blank">Demo Guide</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Trak. Open source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
