@@ -1,6 +1,35 @@
 {
   "name": "trak",
   "version": "0.1.0",
+  "description": "AI-powered development tracking tool that monitors coding sessions, analyzes code quality, and provides actionable insights for individual developers and teams",
+  "keywords": [
+    "development-tracking",
+    "code-quality",
+    "ai-analysis",
+    "productivity",
+    "developer-tools",
+    "session-tracking",
+    "code-insights",
+    "github-integration",
+    "mcp-server",
+    "kiro-integration",
+    "typescript",
+    "cli-tool"
+  ],
+  "author": {
+    "name": "Trak Development Team",
+    "email": "hello@trak.dev",
+    "url": "https://github.com/osasisorae/trak"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osasisorae/trak.git"
+  },
+  "bugs": {
+    "url": "https://github.com/osasisorae/trak/issues"
+  },
+  "homepage": "https://github.com/osasisorae/trak#readme",
   "type": "module",
   "bin": {
     "trak": "./dist/cli.js"
@@ -27,5 +56,8 @@
     "fast-check": "^3.15.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

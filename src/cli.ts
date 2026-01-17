@@ -4,6 +4,8 @@ import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { statusCommand } from './commands/status.js';
 import { devCommand } from './commands/dev.js';
+import { loginCommand } from './commands/login.js';
+import { logoutCommand } from './commands/logout.js';
 
 const program = new Command();
 
@@ -31,5 +33,16 @@ program
   .command('dev')
   .description('Launch developer dashboard')
   .action(devCommand);
+
+program
+  .command('login')
+  .description('Login to organization dashboard')
+  .argument('<org-token>', 'Organization token')
+  .action(loginCommand);
+
+program
+  .command('logout')
+  .description('Logout from organization dashboard')
+  .action(logoutCommand);
 
 program.parse();

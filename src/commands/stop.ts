@@ -2,6 +2,8 @@ import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { createSessionManager } from '../services/sessionManager.js';
 import { createSummaryGenerator } from '../services/summaryGenerator.js';
+import { getTrakConfig } from './login.js';
+import { sendSessionReport } from '../services/orgReporter.js';
 
 export async function stopCommand() {
   const sessionManager = createSessionManager();
@@ -83,6 +85,21 @@ export async function stopCommand() {
     console.log(summary);
     console.log('─────────────────────');
     console.log(`✅ Session saved to .trak/sessions/${timestamp}-session.json`);
+    
+    // Send session report to organization if logged in
+    try {
+      const config = await getTrakConfig();
+      if (config) {
+        console.log('📤 Sending session report to organization...');
+        const reportSent = await sendSessionReport(sessionWithAnalysis, config);
+        if (reportSent) {
+          console.log('✅ Session report sent to organization dashboard');
+        }
+      }
+    } catch (error) {
+      // Don't block session completion on reporting errors
+      console.warn('⚠️  Could not send session report to organization');
+    }
     
     if (analysis.issues.length > 0) {
       console.log(`💡 Run "trak dev" to view detailed analysis in the dashboard`);

@@ -1,0 +1,41 @@
+{
+  "name": "trak-enhanced-agent",
+  "description": "AI agent with automatic code quality tracking via trak integration",
+  "hooks": [
+    {
+      "name": "trak-session-manager",
+      "description": "Automatically manages trak sessions during agent lifecycle",
+      "command": "./kiro-integration/kiro-trak-session.sh",
+      "events": ["agentSpawn", "stop"],
+      "timeout_ms": 10000,
+      "cache_ttl_seconds": 0
+    },
+    {
+      "name": "trak-code-monitor", 
+      "description": "Monitors code changes and provides quality insights",
+      "command": "./kiro-integration/kiro-trak-monitor.sh",
+      "events": ["preToolUse", "postToolUse"],
+      "matcher": ["fs_write", "fs_read", "execute_bash"],
+      "timeout_ms": 5000,
+      "cache_ttl_seconds": 30
+    },
+    {
+      "name": "trak-quality-gate",
+      "description": "Implements quality gates to prevent low-quality commits",
+      "command": "./kiro-integration/kiro-trak-quality-gate.sh", 
+      "events": ["preToolUse"],
+      "matcher": "execute_bash",
+      "timeout_ms": 15000,
+      "cache_ttl_seconds": 0
+    }
+  ],
+  "settings": {
+    "trak_integration": {
+      "auto_start_sessions": true,
+      "quality_gate_enabled": true,
+      "min_quality_score": 60,
+      "max_high_issues": 5,
+      "show_insights": true
+    }
+  }
+}

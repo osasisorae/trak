@@ -1,10 +1,28 @@
 import { createSessionManager } from '../services/sessionManager.js';
+import { getTrakConfig } from './login.js';
 
 export async function statusCommand() {
   const sessionManager = createSessionManager();
   const session = sessionManager.getSession();
+  const config = await getTrakConfig();
+
+  // Show login status first
+  console.log('🔐 Authentication Status');
+  console.log('─────────────────────');
+  if (config) {
+    console.log(`✅ Logged in as: ${config.developerName} (${config.developerId})`);
+    console.log(`🏢 Organization: ${config.orgEndpoint}`);
+    console.log(`📅 Last login: ${new Date(config.lastLogin).toLocaleString()}`);
+    console.log('📤 Sessions will be reported to organization dashboard');
+  } else {
+    console.log('❌ Not logged in');
+    console.log('💡 Run "trak login <org-token>" to connect to your organization');
+  }
+  console.log('');
 
   if (!session || session.status !== 'active') {
+    console.log('📍 Session Status');
+    console.log('─────────────────────');
     console.log('No active session. Run "trak start" to begin tracking.');
     return;
   }
