@@ -57,7 +57,7 @@ npm run build
 npm link
 
 # Set up environment
-cp .env.example .env
+# Create .env file with your API keys
 # Add your OPENAI_API_KEY and GITHUB_TOKEN
 ```
 
@@ -290,7 +290,7 @@ GITHUB_TOKEN=your_github_token_here
 TRAK_ORG_ENDPOINT=http://localhost:3001
 ```
 
-⚠️ **Important**: Use `http://localhost:3001` (base URL only). Trak automatically adds `/api/sessions` to the endpoint.
+⚠️ **Important**: Use `http://localhost:3001` (base URL only). Trak automatically adds `/report` to the endpoint.
 
 ### Step 3: Login to Organization
 
@@ -372,7 +372,7 @@ trak stop
 - Always run `trak logout` then `trak login` after changing `TRAK_ORG_ENDPOINT`
 
 **Wrong endpoint error**
-- Use `http://localhost:3001` as the base URL (not `/api/sessions`)
+- Use `http://localhost:3001` as the base URL (not `/report`)
 - Restart both the server and re-login to trak
 
 ### Important Notes
@@ -391,7 +391,7 @@ Create a `.env` file with your API keys:
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 GITHUB_TOKEN=your_github_token_here
-TRAK_ORG_ENDPOINT=https://api.trak.dev/report
+TRAK_ORG_ENDPOINT=https://api.trak.dev
 ```
 
 ### GitHub Integration
@@ -507,4 +507,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ for developers who care about code quality**
 
-<!-- Updated: 2026-01-17 13:20 - README tracking now works! -->
+<!-- Updated: 2026-01-17 16:47 - README fixes completed -->
