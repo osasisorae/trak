@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered code quality analysis and session tracking for developers">
+    <title>Trak - Developer Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="logo.svg" alt="Trak" class="logo">
+                    <div class="header-text">
+                        <h1>Developer Dashboard</h1>
+                        <p>AI-powered code quality analysis</p>
+                    </div>
+                </div>
+                <div class="header-stats" id="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-sessions">-</span>
+                        <span class="stat-label">Sessions</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="avg-quality">-</span>
+                        <span class="stat-label">Avg Quality</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <aside class="sessions-panel">
+                <div class="panel-header">
+                    <h2>📊 Sessions</h2>
+                    <div class="refresh-indicator" id="refresh-indicator">●</div>
+                </div>
+                <div id="sessions-list" class="sessions-list">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading sessions...</p>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="details-panel">
+                <div id="session-details" class="session-details">
+                    <div class="empty-state">
+                        <div class="empty-icon">📈</div>
+                        <h3>Select a session to view details</h3>
+                        <p>Choose a session from the sidebar to see detailed code analysis and quality metrics</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

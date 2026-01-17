@@ -11,13 +11,16 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@octokit/rest": "^22.0.1",
     "chokidar": "^4.0.3",
     "commander": "^12.1.0",
     "dotenv": "^16.4.7",
+    "express": "^5.2.1",
     "openai": "^4.77.3"
   },
   "devDependencies": {
     "@types/chokidar": "^1.7.5",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.11.0",
     "fast-check": "^3.15.0",
     "typescript": "^5.3.3",

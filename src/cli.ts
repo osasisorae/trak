@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { statusCommand } from './commands/status.js';
+import { devCommand } from './commands/dev.js';
 
 const program = new Command();
 
@@ -25,5 +26,10 @@ program
   .command('status')
   .description('Show current session status')
   .action(statusCommand);
+
+program
+  .command('dev')
+  .description('Launch developer dashboard')
+  .action(devCommand);
 
 program.parse();
