@@ -1,157 +1,174 @@
 # 🎬 Trak Hackathon Demo Video Script
 *Duration: 2-3 minutes | Target: Dynamous × Kiro AI Coding Hackathon judges*
 
-## 🎯 Opening Hook (15 seconds)
-**[Screen: Terminal in clean directory]**
+## 🎯 Introduction: The Hook (30 seconds)
+**[Screen: Split screen - Stressed manager at desk + Code review interface]**
 
-**Voiceover:** "What if your AI coding assistant could not only help you write code, but also track and analyze the quality of what you build together? Meet Trak - AI-powered development intelligence."
+**Voiceover:** "You're managing 6 developers. Sarah just billed 10 hours for authentication. But here's the question that keeps you up at night: Did she really spend 10 hours? What did she actually build? And what bugs did she just introduce into your system?"
 
-**[Type command]**
-```bash
-trak --help
-```
+**[Screen: Multiple browser tabs - GitHub PRs, time tracking, Slack conversations]**
 
-## 🚀 Core Demo Flow (90 seconds)
+**Voiceover:** "Right now, to truly know the answers, you'd have to review every single line of code, track every comment, and somehow verify every hour claimed. Even you would break under that workload."
 
-### 1. Start Session (20 seconds)
+**[Screen: Terminal with trak logo]**
+
+**Voiceover:** "But what if I told you there's a way to know exactly what your developers accomplished, their skill level, and their commitment level - without reviewing a single line of code?"
+
+## 🚀 Development: The Solution (60 seconds)
+
+### Setup (15 seconds)
 **[Screen: Terminal]**
 
-**Voiceover:** "Let's start tracking a coding session. Trak monitors file changes in real-time."
+**Voiceover:** "Here's how it works. Your developer installs Trak, you create an org."
+
+```bash
+# Developer side
+npm install -g trak
+trak login demo-token-123
+```
+
+**[Show login flow]**
+```
+Enter your name: Sarah Chen
+Enter your developer ID: sarah@company.com
+✅ Successfully logged in to organization
+```
+
+### Developer Workflow (25 seconds)
+**[Screen: Split - Terminal + Code Editor]**
+
+**Voiceover:** "Now here's the magic. While Sarah works normally, Trak silently tracks every change she makes."
 
 ```bash
 trak start
 ```
 
-**[Show output]**
-```
-🟢 Session started. Tracking changes...
-Press Ctrl+C or run 'trak stop' to end session
-```
-
-### 2. Make Code Changes (30 seconds)
-**[Screen: Split - Terminal + Code Editor]**
-
-**Voiceover:** "Now I'll make some code changes. Trak automatically detects every modification."
-
-**[Create/edit files quickly]**
-- Create `utils.ts` with a complex function
-- Modify existing file
-- Add a security issue (hardcoded API key)
+**[Show real coding - creating authentication system]**
+- Create auth middleware
+- Add password hashing
+- Implement JWT tokens
+- Make a mistake: hardcode API key
 
 **[Terminal shows live updates]**
 ```
-📝 Modified: src/utils.ts
-➕ Added: src/config.ts
+📝 Modified: src/auth/middleware.ts
+➕ Added: src/auth/jwt.ts
+📝 Modified: src/config/database.ts
 ```
 
-### 3. Stop & Analyze (40 seconds)
+### AI Analysis (20 seconds)
 **[Screen: Terminal]**
 
-**Voiceover:** "When I stop the session, Trak uses AI to analyze code quality and provide actionable insights."
+**Voiceover:** "When Sarah finishes, Trak's AI analyzes everything - quality, security, complexity."
 
 ```bash
 trak stop
 ```
 
-**[Show AI analysis output]**
+**[Show detailed analysis]**
 ```
-⏳ Analyzing code and generating summary...
+📊 Session Summary - Sarah Chen
+─────────────────────────────────
+Duration: 2h 15m (billed: 2.25 hours)
+Files: 3 added, 2 modified, 847 lines changed
 
-📊 Session Summary
-─────────────────────
-Duration: 2m 15s
-Files: 2 added, 1 modified
+🔍 AI Code Analysis:
+   Quality Score: 78/100
+   Security Issues: 2 high-priority
+   Complexity: Medium
+   
+   🔴 CRITICAL: Hardcoded API key in config/database.ts:23
+   🟡 WARNING: Password validation could be stronger
+   ✅ GOOD: Proper JWT implementation with expiration
 
-🔍 Code Analysis:
-   Quality Score: 72/100
-   Issues Found: 3 (1 high, 2 medium)
-
-   Top Issues:
-   🔴 security: Hardcoded API key detected
-      📁 src/config.ts:12
-   🟡 complexity: Function has high cyclomatic complexity
-      📁 src/utils.ts:45
-
-✅ Session saved to .trak/sessions/2026-01-17-session.json
+✅ Report sent to organization dashboard
 ```
 
-## 🤖 AI Assistant Integration (30 seconds)
-**[Screen: Terminal]**
+## 🎪 Climax: Manager Dashboard (45 seconds)
+**[Screen: Web browser - Organization dashboard]**
 
-**Voiceover:** "But here's where it gets powerful - Trak integrates with AI assistants like Kiro through MCP."
+**Voiceover:** "And here's where you get your answers. You get instant visibility into exactly what Sarah accomplished."
+
+**[Show dashboard with Sarah's session]**
+
+**Dashboard shows:**
+- Real work done: Authentication system
+- Time accuracy: 2.25 hours (matches billing)
+- Skill assessment: Strong backend, needs security review
+- Immediate issues: 2 security problems found
+
+**[Click on security issue]**
+
+**Voiceover:** "With one click, you create a GitHub issue with full context. Sarah gets clear direction, you get peace of mind."
+
+**[Show GitHub issue creation]**
+```
+Title: SECURITY: Remove hardcoded API key from database config
+Priority: High
+Assigned: Sarah Chen
+
+AI Analysis:
+Hardcoded API key detected in src/config/database.ts line 23.
+This poses a security risk if code is committed to version control.
+
+Suggestion: Use environment variables or secure key management.
+```
+
+### AI Engineer Integration (15 seconds)
+**[Screen: Terminal with Kiro CLI]**
+
+**Voiceover:** "For AI engineers using Kiro, it's even simpler. Connect Trak's MCP server and everything is automatic."
 
 ```bash
-# Show MCP server running
-npm run mcp-server
+# Kiro automatically starts/stops sessions
+# Every AI-assisted change is tracked
+# Quality reports flow to your manager
 ```
 
-**[Screen: Show Kiro CLI or MCP tools list]**
+## 🎯 Resolution: The Impact (30 seconds)
+**[Screen: Dashboard showing team overview]**
 
-**Voiceover:** "AI assistants can now automatically start sessions, analyze code, and even create GitHub issues from detected problems."
+**Voiceover:** "Now you know exactly what each developer accomplished, their skill level, and their commitment - without reviewing a single line of code."
 
-## 📊 Dashboard & Team Features (20 seconds)
-**[Screen: Web browser]**
+**[Show team metrics]**
+- Sarah: 78% avg quality, security-focused training needed
+- Mike: 92% avg quality, ready for senior promotion  
+- Team: 15% faster delivery, 40% fewer bugs in production
 
-```bash
-trak dev
-```
+**[Screen: Trak logo + GitHub URL]**
 
-**[Show dashboard opening]**
-
-**Voiceover:** "The web dashboard provides visual insights and team reporting. Perfect for engineering leaders who need visibility into AI-assisted development."
-
-**[Quick tour of dashboard features]**
-- Session history
-- Quality trends
-- GitHub issue creation
-- Team analytics
-
-## 🎯 Closing (15 seconds)
-**[Screen: Homepage or GitHub]**
-
-**Voiceover:** "Trak transforms development tracking from manual logging to intelligent insights. Built for the age of AI-assisted coding. Open source, privacy-first, and ready for your team."
-
-**[Show key stats]**
-- 18+ languages supported
-- 6 AI tools integrated
-- MIT licensed
+**Voiceover:** "Trak: Finally, development intelligence that scales with your team. Open source, privacy-first, AI-native."
 
 **[End with]**
 ```
 github.com/osasisorae/trak
+Built for the age of AI-assisted development
 ```
 
 ---
 
 ## 📝 Recording Notes
 
-### Pre-Recording Setup:
-1. **Clean environment**: Fresh terminal, organized desktop
-2. **Prepare files**: Have sample code ready to modify
-3. **Test commands**: Ensure all commands work smoothly
-4. **Set up demo directory**: Use a clean project folder
+### Story Arc:
+1. **Introduction**: Relatable pain point (overworked CTO)
+2. **Development**: Simple solution demonstration  
+3. **Climax**: Powerful manager dashboard reveal
+4. **Resolution**: Transformed team management
 
-### Technical Setup:
-- **Screen resolution**: 1920x1080 for clarity
-- **Terminal**: Large font, high contrast theme
-- **Recording tool**: OBS Studio or QuickTime
-- **Audio**: Clear microphone, no background noise
+### Key Emotional Beats:
+- **Frustration**: "Even the strongest leaders break"
+- **Hope**: "What if there was a better way?"
+- **Relief**: "Without reviewing a single line of code"
+- **Confidence**: "Finally, development intelligence that scales"
 
-### Timing Breakdown:
-- **Opening**: 0:00-0:15
-- **Core Demo**: 0:15-1:45
-- **AI Integration**: 1:45-2:15
-- **Dashboard**: 2:15-2:35
-- **Closing**: 2:35-2:50
+### Technical Credibility:
+- Real code changes (not toy examples)
+- Actual security issues detected
+- Genuine time tracking validation
+- Professional GitHub integration
 
-### Key Messages to Emphasize:
-1. **AI-native**: Built for the age of AI coding assistants
-2. **Intelligent**: Not just tracking, but analyzing and providing insights
-3. **Practical**: Solves real problems for developers and teams
-4. **Hackathon relevant**: Perfect integration with Kiro and MCP
-
-### Fallback Plan:
-If any command fails during recording:
-- Have pre-recorded terminal sessions ready
-- Use static screenshots for dashboard if server issues
-- Keep the script flexible - focus on the story, not perfect execution
+### Hackathon Relevance:
+- AI-native development focus
+- Kiro/MCP integration showcase
+- Solves real business problems
+- Technical depth + practical value
