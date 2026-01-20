@@ -99,6 +99,14 @@ a:hover {
     color: var(--primary-dark);
 }
 
+code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.95em;
+    background-color: var(--slate-100);
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.35rem;
+}
+
 /* Container */
 .container {
     width: 100%;
@@ -221,9 +229,45 @@ a:hover {
     color: var(--slate-900);
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sponsor-pill {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--slate-200);
+    border-radius: 999px;
+    background-color: var(--slate-50);
+    color: var(--slate-700);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sponsor-pill:hover {
+    border-color: var(--slate-300);
+    background-color: var(--white);
+    color: var(--slate-900);
+}
+
+.sponsor-logo {
+    height: 18px;
+    width: auto;
+    display: block;
+}
+
 @media (min-width: 768px) {
     .nav-links {
         display: flex;
+    }
+
+    .sponsor-pill {
+        display: inline-flex;
     }
 }
 
@@ -310,6 +354,27 @@ a:hover {
     border-radius: 0.75rem;
     border: 1px solid var(--slate-200);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Code blocks */
+pre.code-block {
+    background-color: var(--slate-900);
+    color: var(--slate-50);
+    border: 1px solid var(--slate-800);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    margin: 0;
+    overflow: auto;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+pre.code-block code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
 }
 
 /* Crisis Section */
@@ -538,6 +603,84 @@ a:hover {
 .highlight {
     color: var(--primary);
     font-weight: 600;
+}
+
+/* Demo Section */
+.demo-section {
+    padding: 5rem 0;
+}
+
+.demo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+    .demo-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.demo-card {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--slate-200);
+}
+
+.demo-card h3 {
+    color: var(--slate-900);
+    margin-bottom: 1rem;
+}
+
+.demo-note {
+    margin-top: 2rem;
+    color: var(--slate-600);
+    font-size: 1.0625rem;
+}
+
+/* Privacy + Sponsor Sections */
+.privacy-section {
+    padding: 5rem 0;
+    background-color: var(--slate-50);
+}
+
+.sponsor-section {
+    padding: 3rem 0 5rem;
+    background-color: var(--slate-50);
+}
+
+.sponsor-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: center;
+    text-align: center;
+    background-color: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+}
+
+@media (min-width: 768px) {
+    .sponsor-card {
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        justify-content: flex-start;
+    }
+}
+
+.sponsor-card-logo {
+    height: 44px;
+    width: auto;
+    display: block;
+}
+
+.sponsor-card-content h3 {
+    margin-bottom: 0.5rem;
 }
 
 /* Pricing Section */

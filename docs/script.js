@@ -13,46 +13,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Form submission handler
-const form = document.getElementById('earlyAccessForm');
-if (form) {
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        
-        // Collect form data
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
-        
-        // Log the data (in production, send to your backend)
-        console.log('Early Access Form Submitted:', data);
-        
-        // Show success message
-        alert('Thank you for your interest! We\'ll be in touch soon with your early access details.');
-        
-        // Reset form
-        form.reset();
-        
-        // TODO: Replace with actual backend API call
-        // Example:
-        // fetch('/api/early-access', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // })
-        // .then(response => response.json())
-        // .then(result => {
-        //     console.log('Success:', result);
-        //     alert('Thank you for your interest! We\'ll be in touch soon.');
-        //     form.reset();
-        // })
-        // .catch(error => console.error('Error:', error));
-    });
-}
-
 // Smooth scroll animation on page load
 window.addEventListener('load', function () {
     // Add fade-in animation to elements
-    const elements = document.querySelectorAll('.crisis-card, .pricing-card, .feature');
+    const elements = document.querySelectorAll('.crisis-card, .feature, .demo-card, .sponsor-card');
     elements.forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
@@ -83,7 +47,7 @@ const observer = new IntersectionObserver(function (entries) {
 }, observerOptions);
 
 // Observe elements for scroll animations
-document.querySelectorAll('.crisis-card, .pricing-card, .feature').forEach(el => {
+document.querySelectorAll('.crisis-card, .feature, .demo-card, .sponsor-card').forEach(el => {
     observer.observe(el);
 });
 
@@ -109,21 +73,6 @@ window.addEventListener('scroll', function () {
     }
     
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-});
-
-// Button click handlers
-document.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-        // Check if button is a form submit button
-        if (this.type !== 'submit') {
-            // Scroll to form or show message
-            const form = document.getElementById('earlyAccessForm');
-            if (form && (this.textContent.includes('Early Access') || this.textContent.includes('Waitlist'))) {
-                form.scrollIntoView({ behavior: 'smooth' });
-                form.querySelector('input[name="fullName"]').focus();
-            }
-        }
-    });
 });
 
 // Initialize on DOM ready

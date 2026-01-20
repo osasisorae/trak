@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAK - AI Development Intelligence for Engineering Teams</title>
-    <meta name="description" content="Real-time visibility into AI-powered development. TRAK measures code quality and ROI, not screen time. Privacy-first, built for engineering leaders.">
+    <title>Trak — Session Tracking + Quality Signals</title>
+    <meta name="description" content="Trak tracks coding sessions (file changes + time) and generates a session summary plus code-quality signals. Local dashboard, optional org reporting, and MCP automation.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,12 +20,19 @@
                     <img src="assets/logo.svg" alt="TRAK" height="40">
                 </div>
                 <div class="nav-links">
-                    <a href="#product">Product</a>
+                    <a href="#demo">Demo</a>
                     <a href="#features">Features</a>
-                    <a href="#comparison">Why TRAK</a>
-                    <a href="#pricing">Pricing</a>
+                    <a href="#comparison">Why Trak</a>
+                    <a href="#privacy">Privacy</a>
+                    <a href="https://github.com/osasisorae/trak" target="_blank" rel="noreferrer">GitHub</a>
                 </div>
-                <button class="btn btn-primary">Get Early Access</button>
+                <div class="nav-actions">
+                    <a class="sponsor-pill" href="https://kiro.dev/docs/" target="_blank" rel="noreferrer">
+                        <img class="sponsor-logo" src="images/trak-sponsor-kiro-logo.png" alt="Kiro">
+                        <span>Sponsored by Kiro</span>
+                    </a>
+                    <a class="btn btn-primary" href="#demo">Run Demo</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -34,33 +42,33 @@
         <div class="container">
             <div class="hero-grid">
                 <div class="hero-content">
-                    <div class="badge">AI Development Intelligence</div>
-                    <h1>Measure Code Quality, Not Screen Time.</h1>
-                    <p class="hero-subtitle">Gain real-time visibility into AI-assisted development with a privacy-first platform. TRAK delivers the code quality metrics and ROI data engineering leaders need, without invasive surveillance.</p>
+                    <div class="badge">Open source • Local-first • Privacy-first</div>
+                    <h1>Track coding sessions. Ship better code.</h1>
+                    <p class="hero-subtitle">Trak tracks coding sessions (file changes + time) and generates a session summary plus code-quality signals for developers and teams. Run it locally, view results in a dashboard, and optionally report metadata to an org dashboard.</p>
                     
                     <div class="hero-ctas">
-                        <button class="btn btn-primary btn-lg">Start Your 50% Off Early Access →</button>
-                        <a href="https://github.com/osasisorae/trak" class="btn btn-outline btn-lg" target="_blank">Explore Free Open Source</a>
+                        <a class="btn btn-primary btn-lg" href="#demo">Run the demo →</a>
+                        <a href="https://github.com/osasisorae/trak" class="btn btn-outline btn-lg" target="_blank" rel="noreferrer">View on GitHub</a>
                     </div>
 
                     <div class="hero-stats">
                         <div class="stat">
-                            <div class="stat-value">18+</div>
-                            <div class="stat-label">Languages Supported</div>
+                            <div class="stat-value">CLI</div>
+                            <div class="stat-label">Start/stop sessions</div>
                         </div>
                         <div class="stat">
-                            <div class="stat-value">6</div>
-                            <div class="stat-label">AI Tools Integrated</div>
+                            <div class="stat-value">UI</div>
+                            <div class="stat-label">Dev + org dashboards</div>
                         </div>
                         <div class="stat">
                             <div class="stat-value">MIT</div>
-                            <div class="stat-label">Open Source License</div>
+                            <div class="stat-label">Open source</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="hero-visual">
-                    <img src="images/hero-dashboard-mockup.png" alt="TRAK Dashboard showing quality metrics and AI usage analytics">
+                    <img src="images/hero-dashboard-mockup.png" alt="Trak dashboard showing sessions and findings">
                 </div>
             </div>
         </div>
@@ -70,85 +78,104 @@
     <section class="crisis-section">
         <div class="container">
             <div class="section-header">
-                <h2>The Hidden Crisis: Unmanaged AI is Unmeasured Risk</h2>
-                <p>The rise of AI coding assistants has created a critical blind spot for engineering leadership. Your team is accelerating, but you have zero visibility into the quality, security, and true return on investment of that acceleration.</p>
+                <h2>What Trak solves</h2>
+                <p>When coding moves fast (especially with AI), it’s hard to remember what changed, explain what you did, or turn findings into actionable work. Trak makes sessions legible without surveillance.</p>
             </div>
 
             <div class="crisis-grid">
                 <div class="crisis-card">
-                    <div class="crisis-icon crisis-icon-red">📊</div>
-                    <h3>The Quality Blind Spot</h3>
-                    <p>AI-generated code is merged daily with no objective quality scoring, leading to unmanaged technical debt and increased security vulnerabilities.</p>
+                    <div class="crisis-icon crisis-icon-red">🧾</div>
+                    <h3>“What did I change?”</h3>
+                    <p>Trak captures session diffs, duration, and a structured summary so you can review work and share updates quickly.</p>
                 </div>
 
                 <div class="crisis-card">
-                    <div class="crisis-icon crisis-icon-orange">⚡</div>
-                    <h3>Uncertain ROI on AI Investment</h3>
-                    <p>You've invested heavily in AI tools like Copilot and Kiro, but lack the data to measure their impact on developer velocity, efficiency, and the bottom line.</p>
+                    <div class="crisis-icon crisis-icon-orange">🔎</div>
+                    <h3>Quality signals, not vibes</h3>
+                    <p>Trak surfaces findings like complexity, security and performance smells so the session ends with actionable feedback.</p>
                 </div>
 
                 <div class="crisis-card">
                     <div class="crisis-icon crisis-icon-amber">🔒</div>
-                    <h3>Zero Visibility, Zero Control</h3>
-                    <p>Traditional tools track time and clicks. TRAK tracks the outcome: real-time analytics on AI usage and code changes without ever seeing a screenshot.</p>
+                    <h3>Team visibility without surveillance</h3>
+                    <p>No screenshots or keylogging. Optional org reporting shares metadata (not source code) to a manager dashboard.</p>
                 </div>
             </div>
 
             <div class="crisis-stats">
                 <div class="crisis-stat">
-                    <div class="crisis-stat-value">73%</div>
-                    <p>of developers use AI coding tools daily</p>
+                    <div class="crisis-stat-value">Local</div>
+                    <p>Sessions and analysis run on your machine</p>
                 </div>
                 <div class="crisis-stat">
-                    <div class="crisis-stat-value">0%</div>
-                    <p>of engineering managers can track the impact</p>
+                    <div class="crisis-stat-value">Optional</div>
+                    <p>Enable OpenAI, GitHub issues, org reporting</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- The TRAK Solution Section -->
-    <section class="solution-section">
+    <section class="solution-section" id="features">
         <div class="container">
             <div class="section-header">
-                <h2>The TRAK Solution: Features that Matter</h2>
-                <p>TRAK gives engineering leaders the intelligence to manage AI-powered development.</p>
+                <h2>Features</h2>
+                <p>A lightweight CLI + dashboards that make sessions reviewable and shareable.</p>
             </div>
 
             <div class="features-list">
                 <!-- Feature 1 -->
                 <div class="feature">
+                    <div class="feature-visual">
+                        <pre class="code-block"><code>trak start
+# edit/add/delete files...
+trak stop
+trak dev</code></pre>
+                    </div>
                     <div class="feature-content">
-                        <div class="feature-icon">✓</div>
-                        <h3>AI-Powered Quality Gates</h3>
-                        <p>Automatically score every session and commit (0-100) for complexity, security, and performance. Set policies to block low-quality code before it hits the main branch.</p>
-                        <p class="feature-detail"><em>Uses a proprietary CodeAnalyzer service to provide real-time scoring across 18+ languages.</em></p>
+                        <div class="feature-icon">⏱️</div>
+                        <h3>Session tracking + summaries</h3>
+                        <p>Start a session, make changes, stop it. Trak stores a clean session record (diff stats, duration, and analysis) under <code>.trak/</code>.</p>
+                        <p class="feature-detail"><em>Optional: set <code>OPENAI_API_KEY</code> for richer summaries and issue text.</em></p>
                     </div>
                 </div>
 
                 <!-- Feature 2 -->
                 <div class="feature feature-reverse">
                     <div class="feature-visual">
-                        <img src="images/ai-tools-ecosystem.png" alt="TRAK integrations with GitHub Copilot, Kiro CLI, ChatGPT, and Claude">
+                        <img src="images/hero-dashboard-mockup.png" alt="Trak developer dashboard showing sessions and findings">
                     </div>
                     <div class="feature-content">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Measure the True ROI of AI</h3>
-                        <p>See which AI tools (Copilot, Kiro, ChatGPT) are driving the most value. Optimize your AI budget by correlating usage patterns with actual code quality improvements.</p>
-                        <p class="feature-detail"><em>Tracks AI usage metadata and integrates with the Model Context Protocol (MCP) for deep insights.</em></p>
+                        <div class="feature-icon">📊</div>
+                        <h3>Developer dashboard + GitHub issues</h3>
+                        <p>Browse sessions, drill into findings, and turn issues into GitHub tickets for follow-up.</p>
+                        <p class="feature-detail"><em>Optional: set <code>GITHUB_TOKEN</code> to enable issue creation.</em></p>
                     </div>
                 </div>
 
                 <!-- Feature 3 -->
                 <div class="feature">
                     <div class="feature-visual">
-                        <img src="images/privacy-first-illustration.png" alt="Privacy-first design: local analysis with protective barrier between developer and server">
+                        <img src="images/ai-tools-ecosystem.png" alt="Trak automation via MCP and Kiro">
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-icon">🤖</div>
+                        <h3>MCP + Kiro automation</h3>
+                        <p>Run Trak as an MCP server so AI assistants can start/stop sessions, read status, and generate reports. Kiro hooks can add optional quality gates.</p>
+                        <p class="feature-detail"><em>See <code>npm run mcp-server</code> and <code>kiro-integration/</code>.</em></p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature feature-reverse">
+                    <div class="feature-visual">
+                        <img src="images/privacy-first-illustration.png" alt="Privacy-first local analysis">
                     </div>
                     <div class="feature-content">
                         <div class="feature-icon">🔒</div>
-                        <h3>Insights Without Surveillance</h3>
-                        <p>TRAK analyzes code locally on the developer's machine. Only anonymized, aggregated metadata is reported to the dashboard. Your source code and IP never leave your environment.</p>
-                        <p class="feature-detail"><em>Local analysis only. No screenshots. No code ever leaves the local machine.</em></p>
+                        <h3>Privacy-first</h3>
+                        <p>Trak analyzes changes locally. It does not take screenshots. Org reporting is optional and sends metadata (not source code) to your endpoint.</p>
+                        <p class="feature-detail"><em>Local analysis only. No screenshots. No keylogging.</em></p>
                     </div>
                 </div>
             </div>
@@ -173,32 +200,27 @@
                         <tr>
                             <td class="feature-name">Core Focus</td>
                             <td>Time tracking, activity monitoring, screenshots</td>
-                            <td class="highlight">Code Quality, AI ROI, Developer Velocity</td>
+                            <td class="highlight">Session diffs, summaries, quality signals</td>
                         </tr>
                         <tr>
                             <td class="feature-name">Privacy Model</td>
                             <td>Invasive: Screenshots, keylogging, full activity logs</td>
-                            <td class="highlight">Privacy-First: Local analysis, aggregated metadata only</td>
+                            <td class="highlight">Privacy-first: local analysis; optional metadata reporting</td>
                         </tr>
                         <tr>
                             <td class="feature-name">Code Quality Analysis</td>
                             <td>None</td>
-                            <td class="highlight">Real-Time Quality Scoring (0-100)</td>
+                            <td class="highlight">Findings + optional scoring</td>
                         </tr>
                         <tr>
                             <td class="feature-name">AI Visibility</td>
                             <td>None</td>
-                            <td class="highlight">Full AI Usage Analytics (Copilot, Kiro, ChatGPT)</td>
+                            <td class="highlight">MCP automation (works great with Kiro)</td>
                         </tr>
                         <tr>
                             <td class="feature-name">Commit Control</td>
                             <td>None</td>
-                            <td class="highlight">Quality Gates: Auto-prevent low-score commits</td>
-                        </tr>
-                        <tr>
-                            <td class="feature-name">Cost</td>
-                            <td>~$6.40 per user/month</td>
-                            <td class="highlight">$5 per developer/month (22% more affordable)</td>
+                            <td class="highlight">Optional quality gates via hooks</td>
                         </tr>
                     </tbody>
                 </table>
@@ -206,113 +228,85 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section class="pricing-section" id="pricing">
+    <!-- Demo Section -->
+    <section class="demo-section" id="demo">
         <div class="container">
-            <h2 class="section-title">Simple, Transparent Pricing</h2>
-            <p class="section-subtitle">Choose the plan that fits your team's needs. All plans include a 14-day free trial.</p>
+            <div class="section-header">
+                <h2>Demo (copy/paste)</h2>
+                <p>Run Trak locally in a few minutes.</p>
+            </div>
 
-            <div class="pricing-grid">
-                <!-- Open Source Plan -->
-                <div class="pricing-card">
-                    <h3>Open Source</h3>
-                    <p class="pricing-subtitle">Perfect for individual developers</p>
-                    <div class="pricing-amount">
-                        <span class="price">Free</span>
-                        <span class="period">Forever</span>
-                    </div>
-                    <button class="btn btn-outline btn-block">Get Started on GitHub</button>
-                    <ul class="pricing-features">
-                        <li>✓ Personal session tracking</li>
-                        <li>✓ AI-powered code analysis</li>
-                        <li>✓ Quality scoring & insights</li>
-                        <li>✓ GitHub integration</li>
-                    </ul>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>1) Install from source</h3>
+                    <pre class="code-block"><code>git clone https://github.com/osasisorae/trak.git
+cd trak
+npm install
+npm run build
+npm link
+
+cp .env.example .env</code></pre>
                 </div>
 
-                <!-- Team Analytics Plan - Featured -->
-                <div class="pricing-card pricing-featured">
-                    <div class="pricing-badge">Most Popular</div>
-                    <h3>Team Analytics</h3>
-                    <p class="pricing-subtitle">For engineering teams using AI</p>
-                    <div class="pricing-amount">
-                        <span class="price">$5</span>
-                        <span class="period">per developer/month</span>
-                    </div>
-                    <button class="btn btn-primary btn-block">Join Waitlist - 50% Off</button>
-                    <ul class="pricing-features">
-                        <li>✓ Everything in Open Source</li>
-                        <li>✓ Team dashboard & analytics</li>
-                        <li>✓ AI usage insights & ROI tracking</li>
-                        <li>✓ Quality gates & automated policies</li>
-                        <li>✓ Advanced reporting & trends</li>
-                    </ul>
+                <div class="demo-card">
+                    <h3>2) Track a session</h3>
+                    <pre class="code-block"><code>trak start
+# edit files...
+trak status
+trak stop</code></pre>
                 </div>
 
-                <!-- Enterprise Plan -->
-                <div class="pricing-card">
-                    <h3>Enterprise</h3>
-                    <p class="pricing-subtitle">For large engineering organizations</p>
-                    <div class="pricing-amount">
-                        <span class="price">Custom</span>
-                        <span class="period">pricing</span>
-                    </div>
-                    <button class="btn btn-outline btn-block">Contact Sales</button>
-                    <ul class="pricing-features">
-                        <li>✓ Everything in Team Analytics</li>
-                        <li>✓ Multi-org management</li>
-                        <li>✓ Advanced compliance & audit logs</li>
-                        <li>✓ Custom integrations & APIs</li>
-                        <li>✓ Dedicated success manager</li>
-                    </ul>
+                <div class="demo-card">
+                    <h3>3) Open dashboards</h3>
+                    <pre class="code-block"><code>trak dev
+# opens http://localhost:3000
+
+cd demo
+node mock-org-server.js
+# opens http://localhost:3001</code></pre>
+                </div>
+            </div>
+
+            <p class="demo-note">Org reporting demo: set <code>TRAK_ORG_ENDPOINT=http://localhost:3001</code>, then run <code>trak login</code> and complete a session to POST metadata to the org dashboard.</p>
+        </div>
+    </section>
+
+    <!-- Privacy Section -->
+    <section class="privacy-section" id="privacy">
+        <div class="container">
+            <div class="section-header">
+                <h2>Privacy-first by default</h2>
+                <p>Trak is built to help developers and teams understand work — without invasive tracking.</p>
+            </div>
+
+            <div class="crisis-grid">
+                <div class="crisis-card">
+                    <div class="crisis-icon crisis-icon-red">🚫</div>
+                    <h3>No screenshots</h3>
+                    <p>Trak does not record your screen, keystrokes, or “activity” signals.</p>
+                </div>
+                <div class="crisis-card">
+                    <div class="crisis-icon crisis-icon-orange">🧠</div>
+                    <h3>Local analysis</h3>
+                    <p>Findings are generated from your local file changes. Your source code stays on your machine.</p>
+                </div>
+                <div class="crisis-card">
+                    <div class="crisis-icon crisis-icon-amber">🏢</div>
+                    <h3>Optional org reporting</h3>
+                    <p>If enabled, Trak can POST session metadata to your org endpoint for a lightweight manager view.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Early Access CTA Section -->
-    <section class="cta-section">
+    <!-- Sponsor Section -->
+    <section class="sponsor-section" id="sponsor">
         <div class="container">
-            <div class="cta-content">
-                <h2>Ready to Stop Guessing?</h2>
-                <p>Join 500+ engineering leaders who are gaining control and clarity over their AI-powered development teams.</p>
-                
-                <!-- Early Access Form -->
-                <form class="early-access-form" id="earlyAccessForm">
-                    <input type="text" name="fullName" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Work Email" required>
-                    <input type="text" name="company" placeholder="Company" required>
-                    <select name="role" required>
-                        <option value="">Select your role</option>
-                        <option value="cto">CTO</option>
-                        <option value="vp-eng">VP Engineering</option>
-                        <option value="eng-manager">Engineering Manager</option>
-                        <option value="tech-lead">Tech Lead</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <select name="teamSize" required>
-                        <option value="">Select team size</option>
-                        <option value="1-5">1-5 developers</option>
-                        <option value="6-20">6-20 developers</option>
-                        <option value="21-50">21-50 developers</option>
-                        <option value="51-100">51-100 developers</option>
-                        <option value="100+">100+ developers</option>
-                    </select>
-                    <select name="aiTools" required>
-                        <option value="">Primary AI tool</option>
-                        <option value="copilot">GitHub Copilot</option>
-                        <option value="kiro">Kiro CLI</option>
-                        <option value="chatgpt">ChatGPT</option>
-                        <option value="claude">Claude</option>
-                        <option value="multiple">Multiple tools</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">Get Early Access - 50% Off</button>
-                </form>
-
-                <div class="cta-benefits">
-                    <div class="benefit">⚡ First access to team analytics</div>
-                    <div class="benefit">✓ 50% off for the first 6 months</div>
-                    <div class="benefit">💻 Direct input on product roadmap</div>
+            <div class="sponsor-card">
+                <img src="images/trak-sponsor-kiro-logo.png" alt="Kiro" class="sponsor-card-logo">
+                <div class="sponsor-card-content">
+                    <h3>Sponsored by Kiro</h3>
+                    <p>Built for the Kiro hackathon — with first-class MCP automation and a <code>kiro-integration/</code> demo.</p>
                 </div>
             </div>
         </div>
@@ -325,39 +319,39 @@
                 <div class="footer-section">
                     <h4>Product</h4>
                     <ul>
-                        <li><a href="#product">Demo</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="#">Open Source</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="https://github.com/osasisorae/trak" target="_blank" rel="noreferrer">Open Source</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Company</h4>
+                    <h4>Project</h4>
                     <ul>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/issues" target="_blank" rel="noreferrer">Issues</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">Contributing</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/LICENSE" target="_blank" rel="noreferrer">License</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Resources</h4>
                     <ul>
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">GitHub</a></li>
-                        <li><a href="#">Support</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/README.md" target="_blank" rel="noreferrer">README</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/DEMO.md" target="_blank" rel="noreferrer">Demo script</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/docs-md/README.md" target="_blank" rel="noreferrer">Docs</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Legal</h4>
                     <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Security</a></li>
+                        <li><a href="#privacy">Privacy</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a></li>
+                        <li><a href="https://github.com/osasisorae/trak/security" target="_blank" rel="noreferrer">Security</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 TRAK. Open source under MIT License.</p>
-                <a href="#" class="github-link">GitHub</a>
+                <p>© 2026 Trak. Open source under MIT License.</p>
+                <a href="https://github.com/osasisorae/trak" class="github-link" target="_blank" rel="noreferrer">GitHub</a>
             </div>
         </div>
     </footer>
