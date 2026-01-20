@@ -1,4 +1,4 @@
-# 🚀 Trak - AI-Powered Development Tracking
+# <img src="public/logo.svg" alt="Trak" width="120" height="40"> Trak - AI-Powered Development Tracking
 
 > **Track your coding sessions, analyze code quality, and enhance your development workflow with AI-powered insights.**
 
