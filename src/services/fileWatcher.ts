@@ -6,7 +6,7 @@ import chokidar, { FSWatcher } from 'chokidar';
  */
 export interface FileChange {
   /** Type of change: file added, modified, or deleted */
-  type: 'add' | 'change' | 'unlink';
+  type: 'added' | 'modified' | 'deleted';
   /** Relative path to the changed file */
   path: string;
   /** When the change occurred */
@@ -19,8 +19,8 @@ export interface FileChange {
 export interface FileWatcherConfig {
   /** Glob patterns for files to watch */
   patterns: string[];
-  /** Glob patterns for files/directories to exclude */
-  excludePatterns: string[];
+  /** Glob patterns for files/directories to exclude (chokidar's `ignored`) */
+  ignored: string[];
   /** Milliseconds to wait before emitting change events */
   debounceMs: number;
   /** Working directory to watch from */
@@ -56,40 +56,55 @@ export class FileWatcher extends EventEmitter {
     return Array.from(this.extensions).some(ext => path.endsWith(ext));
   }
 
-  start() {
-    this.watcher = chokidar.watch(this.config.cwd, {
-      ignored: this.config.excludePatterns,
+  async start(cwd?: string): Promise<void> {
+    const effectiveCwd = cwd ?? this.config.cwd;
+
+    // Watch the whole working directory for reliability, then filter in-process.
+    // (Glob + cwd mode can be flaky across platforms/environments.)
+    this.watcher = chokidar.watch('.', {
+      ignored: this.config.ignored,
       persistent: true,
       ignoreInitial: true,
-      usePolling: true,
       awaitWriteFinish: {
         stabilityThreshold: this.config.debounceMs,
         pollInterval: 100
       },
-      cwd: this.config.cwd
+      cwd: effectiveCwd
     });
 
     this.watcher
+      .on('ready', () => {
+        this.emit('ready');
+      })
       .on('add', (path: string) => {
         if (this.shouldInclude(path)) {
-          this.emit('change', { type: 'add', path, timestamp: new Date() });
+          this.emit('change', { type: 'added', path, timestamp: new Date() });
         }
       })
       .on('change', (path: string) => {
         if (this.shouldInclude(path)) {
-          this.emit('change', { type: 'change', path, timestamp: new Date() });
+          this.emit('change', { type: 'modified', path, timestamp: new Date() });
         }
       })
       .on('unlink', (path: string) => {
         if (this.shouldInclude(path)) {
-          this.emit('change', { type: 'unlink', path, timestamp: new Date() });
+          this.emit('change', { type: 'deleted', path, timestamp: new Date() });
         }
+      })
+      .on('error', (error: unknown) => {
+        this.emit('error', error);
       });
+
+    await new Promise<void>((resolve, reject) => {
+      if (!this.watcher) return resolve();
+      this.watcher.once('ready', resolve);
+      this.watcher.once('error', reject);
+    });
   }
 
-  stop() {
+  async stop(): Promise<void> {
     if (this.watcher) {
-      this.watcher.close();
+      await this.watcher.close();
       this.watcher = undefined;
     }
   }
@@ -102,7 +117,7 @@ export class FileWatcher extends EventEmitter {
 export function createFileWatcher(overrides?: Partial<FileWatcherConfig>): FileWatcher {
   const config: FileWatcherConfig = {
     patterns: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.go', '**/*.rs', '**/*.md'],
-    excludePatterns: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/*.test.*'],
+    ignored: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/.trak/**', '**/*.test.*'],
     debounceMs: 300,
     cwd: process.cwd(),
     ...overrides

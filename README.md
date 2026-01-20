@@ -1,367 +1,73 @@
-# <img src="public/logo.svg" alt="Trak" width="120" height="40"> Trak - AI-Powered Development Tracking
+# <img src="public/logo.svg" alt="Trak" width="120" height="40"> Trak
 
-Trak is an AI-powered development tracker that monitors your coding sessions and provides actionable code quality insights for individual developers and teams. Built with seamless AI assistant integration and modern development workflows in mind.
+Trak tracks coding sessions (file changes + time) and generates a session summary plus code-quality signals for developers and teams. It ships a local dashboard, optional org reporting, and an MCP server for AI assistant automation.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![CI](https://github.com/osasisorae/trak/actions/workflows/ci.yml/badge.svg)](https://github.com/osasisorae/trak/actions/workflows/ci.yml)
 
-## Key Capabilities
+## Contents
 
-- **Smart Session Tracking**: Automatic monitoring of coding sessions with productivity metrics
-- **AI Code Analysis**: Quality scoring (0-100) with actionable improvement suggestions  
-- **Team Integration**: Organization dashboards and automated reporting
-- **AI Assistant Ready**: MCP server for seamless integration with Kiro CLI and other AI tools
-- **GitHub Integration**: One-click issue creation from detected code problems
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **Session tracking**: `trak start/stop` runs a background daemon to track file changes.
+- **Local dashboard**: `trak dev` to browse sessions and findings.
+- **Optional AI analysis**: set `OPENAI_API_KEY` to generate summaries + issues.
+- **Optional org reporting**: `trak login` and `TRAK_ORG_ENDPOINT` to POST session metadata to `/api/sessions`.
+- **Optional GitHub issues**: set `GITHUB_TOKEN` to create issues from detected findings (dashboard + MCP).
 
 ## Quick Start
 
-Install and start tracking:
+Install from source:
 
 ```bash
-# Clone and install
 git clone https://github.com/osasisorae/trak.git
 cd trak
 npm install
 npm run build
 npm link
 
-# Set up environment (add your API keys)
 cp .env.example .env
 ```
 
-Start your first session:
+Track a session in any repo:
 
 ```bash
-# Start tracking
 trak start
-
-# Make some code changes...
-# Edit files, run tests, commit code
-
-# Stop and generate AI analysis
+# edit/add/delete files...
+trak status
 trak stop
+```
 
-# View insights in dashboard
+Open the local dashboard:
+
+```bash
 trak dev
 ```
 
-## Resources
-
-- 📚 [Complete Usage Guide](#-complete-usage-guide)
-- 🤖 [AI Assistant Integration](#-ai-assistant-integration-mcp)
-- 🔗 [Kiro CLI Integration](#-kiro-cli-integration)
-- 🏢 [Organization Dashboard](#-organization-dashboard-demo)
-- ⚙️ [Configuration](#️-configuration)
-
-## 📖 Complete Usage Guide
-
-### Core Commands
-
-#### `trak start`
-Begin tracking a new coding session in the current directory.
+Prefer not to `npm link`? Run the CLI directly:
 
 ```bash
-trak start
-# 🟢 Session started. Tracking changes...
-# Press Ctrl+C or run 'trak stop' to end session
+node /absolute/path/to/trak/dist/cli.js start
+node /absolute/path/to/trak/dist/cli.js status
+node /absolute/path/to/trak/dist/cli.js stop
 ```
 
-#### `trak stop`
-Stop the current session and generate comprehensive AI analysis.
+## Configuration
+
+Copy `.env.example` and fill what you need:
 
 ```bash
-trak stop
-# ⏳ Analyzing code and generating summary...
-# 
-# 📊 Session Summary
-# ─────────────────────
-# Duration: 45m
-# Files: 3 added, 7 modified, 1 deleted
-# 
-# 🔍 Code Analysis:
-#    Quality Score: 78/100
-#    Issues Found: 4 (1 high, 2 medium, 1 low)
-# 
-#    Top Issues:
-#    🔴 security: Hardcoded API key detected
-#       📁 src/config.ts:12
-#    🟡 complexity: Function has high cyclomatic complexity
-#       📁 src/utils.ts:45
-# 
-# ✅ Session saved to .trak/sessions/2026-01-17-session.json
-# 💡 Run "trak dev" to view detailed analysis in the dashboard
+cp .env.example .env
 ```
-
-#### `trak status`
-View current session status and authentication information.
-
-```bash
-trak status
-# 🔐 Authentication Status
-# ─────────────────────
-# ✅ Logged in as: John Doe (john@company.com)
-# 🏢 Organization: https://api.company.com/trak
-# 📅 Last login: 1/17/2026, 2:15:30 AM
-# 
-# 📍 Active Session
-# ─────────────────────
-# ID: 1768609239824
-# Started: 23 minutes ago
-# Duration: 23m 45s
-# 
-# Files tracked: 12
-#   ➕ 2 added
-#   📝 8 modified
-#   🗑️ 2 deleted
-```
-
-#### `trak dev`
-Launch the interactive developer dashboard.
-
-```bash
-trak dev
-# 🚀 Dashboard server starting on http://localhost:3000
-# 🌐 Browser opened to http://localhost:3000
-```
-
-### Organization Integration
-
-#### `trak login <org-token>`
-Connect to your organization's dashboard for team tracking.
-
-```bash
-trak login demo-token-123
-# Enter your name: John Doe
-# Enter your developer ID (email or username): john@company.com
-# ✅ Successfully logged in to organization
-# 📋 Developer: John Doe (john@company.com)
-# 🏢 Organization endpoint: https://api.trak.dev/report
-# 💡 Your sessions will now be reported to your organization dashboard
-```
-
-#### `trak logout`
-Disconnect from organization dashboard.
-
-```bash
-trak logout
-# ✅ Successfully logged out
-# 💡 Your sessions will no longer be reported to organization dashboard
-```
-
-## 🤖 AI Assistant Integration (MCP)
-
-Trak includes a Model Context Protocol server that enables AI assistants to control trak sessions automatically.
-
-### Available MCP Tools
-
-1. **`trak_start_session`** - Start tracking a session
-2. **`trak_stop_session`** - Stop session and generate analysis  
-3. **`trak_get_status`** - Get current session status
-4. **`trak_get_session_history`** - Query past sessions
-5. **`trak_analyze_session`** - Get detailed analysis of specific session
-6. **`trak_create_github_issue`** - Create GitHub issues from detected code problems
-
-### Setup for AI Assistants
-
-1. **Build the project**: `npm run build`
-2. **Test the MCP server**: `npm run mcp-server`
-3. **Configure your AI assistant** using the example in `mcp-config-example.json`
-
-For Kiro CLI, add to your MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "trak": {
-      "command": "node",
-      "args": ["/absolute/path/to/trak/dist/mcp-server.js"],
-      "env": {
-        "OPENAI_API_KEY": "your_openai_api_key_here",
-        "GITHUB_TOKEN": "your_github_token_here"
-      }
-    }
-  }
-}
-```
-
-### Testing MCP Integration
-
-```bash
-# List available tools
-echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | npm run mcp-server
-
-# Get current status
-echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "trak_get_status", "arguments": {}}}' | npm run mcp-server
-```
-
-## 🔗 Kiro CLI Integration
-
-Trak integrates seamlessly with [Kiro CLI](https://kiro.ai) to provide **automatic development tracking** and **enhanced AI assistance**.
-
-### Enhanced Features with Kiro
-
-🚀 **Automatic Session Management**
-- Sessions start automatically when Kiro agent spawns
-- Sessions stop automatically when agent finishes
-- No manual `trak start/stop` commands needed
-
-🔍 **Real-time Code Quality Monitoring**  
-- Monitor file changes during development
-- Provide quality insights after code modifications
-- Track build/test commands and development activity
-
-🚫 **Quality Gates**
-- Block git commits with quality score < 60
-- Prevent commits with > 5 high-priority issues
-- Maintain code quality standards automatically
-
-📊 **Enhanced AI Context**
-- Kiro agents receive real-time session statistics
-- AI assistance informed by actual coding patterns
-- Quality insights integrated into development workflow
-
-### Quick Setup
-
-```bash
-# Copy integration files to your project
-cp -r kiro-integration/ /path/to/your/project/
-
-# Configure your Kiro agent using the provided configuration
-# Use kiro-integration/kiro-agent-config.json
-
-# Start coding with Kiro - trak works automatically!
-kiro-cli chat
-```
-
-## 🏢 Organization Dashboard (Demo)
-
-For hackathon demonstration, you can run a mock organization server to see how trak integrates with team dashboards.
-
-### Step 1: Start the Organization Server
-
-**IMPORTANT**: You must start the organization server FIRST before configuring trak.
-
-```bash
-# Navigate to demo directory and start the mock server
-cd demo
-node mock-org-server.js
-```
-
-You should see this output:
-```
-🏢 Mock Organization Server running on http://localhost:3001
-📡 Ready to receive session reports from trak clients
-💡 Use TRAK_ORG_ENDPOINT=http://localhost:3001/report when logging in
-```
-
-**Keep this terminal open** - the server must be running for trak to send reports.
-
-### Step 2: Configure Trak Environment
-
-Update your `.env` file to include the organization endpoint:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-GITHUB_TOKEN=your_github_token_here
-TRAK_ORG_ENDPOINT=http://localhost:3001
-```
-
-⚠️ **Important**: Use `http://localhost:3001` (base URL only). Trak automatically adds `/report` to the endpoint.
-
-### Step 3: Login to Organization
-
-```bash
-# Clear any existing configuration first
-trak logout
-
-# Login with demo token
-trak login demo-token-123
-```
-
-You'll be prompted to enter:
-- **Your name**: Enter any name (e.g., "John Doe")
-- **Developer ID**: Enter any email or username (e.g., "john@company.com")
-
-### Step 4: Verify Configuration
-
-```bash
-trak status
-```
-
-You should see:
-```
-🔐 Authentication Status
-─────────────────────
-✅ Logged in as: John Doe (john@company.com)
-🏢 Organization: http://localhost:3001
-📅 Last login: 1/17/2026, 2:15:30 AM
-```
-
-### Step 5: Test the Integration
-
-Now you can test the full workflow:
-
-```bash
-# Start tracking a session
-trak start
-
-# Make some code changes (edit any .ts/.js/.py file in your project)
-# The changes will be automatically detected
-
-# Stop session and generate report
-trak stop
-```
-
-### Verify It's Working
-
-**In the trak terminal**, you should see:
-```
-✅ Session report sent to organization
-```
-
-**In the organization server terminal**, you should see:
-```
-📊 New Session Report Received
-─────────────────────────────
-👤 Developer: John Doe (john@company.com)
-🆔 Session ID: 1768651234567
-⏰ Timestamp: 2026-01-17T12:00:00.000Z
-⏱️  Duration: 5m
-📁 Files Changed: 2
-📊 Quality Score: 85/100
-🔍 Issues Found: 3
-📝 Summary: Session analysis summary...
-```
-
-### Troubleshooting
-
-**"Failed to connect to localhost port 3001"**
-- The organization server is not running
-- Start the server first: `cd demo && node mock-org-server.js`
-
-**"Could not send session report"**
-- Make sure the organization server is running BEFORE you run `trak stop`
-- Check that the server terminal shows it's listening on port 3001
-
-**Configuration not updating**
-- Trak caches organization settings
-- Always run `trak logout` then `trak login` after changing `TRAK_ORG_ENDPOINT`
-
-**Wrong endpoint error**
-- Use `http://localhost:3001` as the base URL (not `/report`)
-- Restart both the server and re-login to trak
-
-### Important Notes
-
-- **Server must run first**: Always start `node mock-org-server.js` before configuring trak
-- **Keep server running**: The organization server must stay running during your trak sessions
-- **Memory storage**: The mock server stores reports in memory only (resets on restart)
-- **Demo purposes**: This is a demonstration server - real organization servers would use persistent storage
-
-## ⚙️ Configuration
-
-Create a `.env` file with your API keys:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
@@ -369,106 +75,22 @@ GITHUB_TOKEN=your_github_token_here
 TRAK_ORG_ENDPOINT=https://api.trak.dev
 ```
 
-### GitHub Integration
+## Documentation
 
-For GitHub issue creation:
+- Start here: [docs-md/README.md](docs-md/README.md)
+- Getting started: [docs-md/getting-started.md](docs-md/getting-started.md)
+- CLI reference: [docs-md/cli.md](docs-md/cli.md)
+- Configuration: [docs-md/configuration.md](docs-md/configuration.md)
+- Privacy: [docs-md/privacy.md](docs-md/privacy.md)
+- Dashboard: [docs-md/dashboard.md](docs-md/dashboard.md)
+- Organization demo: [docs-md/organization-demo.md](docs-md/organization-demo.md)
+- MCP: [docs-md/mcp.md](docs-md/mcp.md)
+- Development: [docs-md/development.md](docs-md/development.md)
 
-1. Go to GitHub Settings → Developer settings → Personal access tokens → **Tokens (classic)**
-2. Generate a classic token with `repo` scope
-3. Add the token to your `.env` file
+## Contributing
 
-**Note**: Use classic tokens, not fine-grained tokens. The token needs `repo` scope for private repositories or `public_repo` for public repositories only.
+See `CONTRIBUTING.md`.
 
-## 🏗️ Architecture
+## License
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   CLI Commands  │    │  Web Dashboard  │    │  MCP Server     │
-│                 │    │                 │    │                 │
-│ • start/stop    │    │ • Session view  │    │ • 6 MCP tools   │
-│ • status        │    │ • Quality       │    │ • JSON-RPC      │
-│ • login/logout  │    │   insights      │    │ • AI assistant  │
-│ • dev           │    │ • GitHub issues │    │   integration   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │  Core Services  │
-                    │                 │
-                    │ • SessionManager│
-                    │ • CodeAnalyzer  │
-                    │ • SummaryGen    │
-                    │ • OrgReporter   │
-                    └─────────────────┘
-                                 │
-                    ┌─────────────────┐
-                    │   Data Layer    │
-                    │                 │
-                    │ • .trak/        │
-                    │   sessions/     │
-                    │ • ~/.trak/      │
-                    │   config.json   │
-                    └─────────────────┘
-```
-
-## 🛠️ Development
-
-### Prerequisites
-
-- Node.js 18+
-- TypeScript 5.0+
-- OpenAI API key
-- GitHub personal access token (optional)
-
-### Setup
-
-```bash
-git clone https://github.com/osasisorae/trak.git
-cd trak
-npm install
-npm run build
-```
-
-### Testing
-
-```bash
-npm test
-```
-
-### Building
-
-```bash
-npm run build
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Quick Start for Contributors
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Add tests for new functionality
-5. Run tests: `npm test`
-6. Commit changes: `git commit -m 'Add amazing feature'`
-7. Push to branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Kiro Team for providing 2500 free credits during the Dynamous × Kiro AI Coding Hackathon
-- The Kiro CLI team for MCP integration
-- All contributors and beta testers
-
----
-
-**Built with ❤️ for developers who care about code quality**
-
-<!-- Updated: 2026-01-17 16:47 - README fixes completed -->
+MIT — see `LICENSE`.

@@ -103,9 +103,9 @@ Provide a brief summary (2-3 sentences) of what was accomplished in this session
   }
 
   private fallbackSummary(session: Session, analysis: AnalysisResult): string {
-    const added = session.changes.filter(c => c.type === 'add').length;
-    const modified = session.changes.filter(c => c.type === 'change').length;
-    const deleted = session.changes.filter(c => c.type === 'unlink').length;
+    const added = session.changes.filter(c => c.type === 'added').length;
+    const modified = session.changes.filter(c => c.type === 'modified').length;
+    const deleted = session.changes.filter(c => c.type === 'deleted').length;
     
     let summary = `Worked on ${session.changes.length} files: ${added} added, ${modified} modified, ${deleted} deleted.`;
     

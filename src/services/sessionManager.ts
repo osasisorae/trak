@@ -1,5 +1,6 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { randomUUID } from 'crypto';
 import type { FileChange } from './fileWatcher.js';
 
 /**
@@ -8,8 +9,8 @@ import type { FileChange } from './fileWatcher.js';
 export interface SessionChange {
   /** Relative path to the changed file */
   path: string;
-  /** Type of change: add, change, or unlink */
-  type: 'add' | 'change' | 'unlink';
+  /** Type of change: added, modified, or deleted */
+  type: 'added' | 'modified' | 'deleted';
   /** When the change occurred */
   timestamp: Date;
   /** Number of times this file was modified in the session */
@@ -32,6 +33,8 @@ export interface Session {
   changes: SessionChange[];
   /** Current status of the session */
   status: 'active' | 'stopped';
+  /** PID of the background daemon process */
+  daemonPid?: number;
   /** AI-generated summary of the session */
   summary?: string;
   /** AI analysis results */
@@ -58,10 +61,18 @@ export interface Session {
 
 /** Helper function to deserialize a session from JSON, converting date strings to Date objects */
 export function deserializeSession(data: any): Session {
+  const changes = Array.isArray(data?.changes)
+    ? data.changes.map((change: any) => ({
+        ...change,
+        timestamp: new Date(change.timestamp),
+      }))
+    : [];
+
   return {
     ...data,
     startTime: new Date(data.startTime),
     endTime: data.endTime ? new Date(data.endTime) : undefined,
+    changes,
   };
 }
 
@@ -71,11 +82,14 @@ export function deserializeSession(data: any): Session {
  */
 export class SessionManager {
   private session: Session | null = null;
+  private cwd: string;
   private trakDir: string;
   private currentSessionPath: string;
   private sessionsDir: string;
+  private lastArchivePath?: string;
 
   constructor(cwd: string = process.cwd()) {
+    this.cwd = cwd;
     // Set up directory structure: .trak/current-session.json and .trak/sessions/
     this.trakDir = join(cwd, '.trak');
     this.currentSessionPath = join(this.trakDir, 'current-session.json');
@@ -100,11 +114,12 @@ export class SessionManager {
    */
   startSession(): Session {
     this.ensureDirectories();
+    this.lastArchivePath = undefined;
     
     this.session = {
-      id: Date.now().toString(), // Simple timestamp-based ID
+      id: randomUUID(),
       startTime: new Date(),
-      cwd: process.cwd(),
+      cwd: this.cwd,
       changes: [],
       status: 'active'
     };
@@ -117,11 +132,14 @@ export class SessionManager {
    * Stops the current session and archives it
    * @returns The stopped session, or null if no active session
    */
-  stopSession(): Session | null {
+  stopSession(finalize?: Partial<Pick<Session, 'summary' | 'analysis'>>): Session | null {
     if (!this.session) return null;
 
     this.session.endTime = new Date();
     this.session.status = 'stopped';
+    if (finalize) {
+      this.session = { ...this.session, ...finalize };
+    }
 
     // Create timestamped filename for the archived session
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
@@ -129,6 +147,7 @@ export class SessionManager {
     
     // Save to archive and clear current session
     writeFileSync(archivePath, JSON.stringify(this.session, null, 2));
+    this.lastArchivePath = archivePath;
     
     if (existsSync(this.currentSessionPath)) {
       writeFileSync(this.currentSessionPath, '');
@@ -175,10 +194,11 @@ export class SessionManager {
    * Updates existing changes or creates new ones as needed
    */
   addChange(change: FileChange) {
-    if (!this.session || this.session.status !== 'active') return;
+    const session = this.getSession();
+    if (!session || session.status !== 'active') return;
 
     // Check if we already have a change for this file
-    const existing = this.session.changes.find(c => c.path === change.path);
+    const existing = session.changes.find(c => c.path === change.path);
     
     if (existing) {
       // Update existing change with new timestamp and increment count
@@ -187,7 +207,7 @@ export class SessionManager {
       existing.type = change.type;
     } else {
       // Add new change
-      this.session.changes.push({
+      session.changes.push({
         path: change.path,
         type: change.type,
         timestamp: change.timestamp,
@@ -205,6 +225,27 @@ export class SessionManager {
     if (this.session) {
       writeFileSync(this.currentSessionPath, JSON.stringify(this.session, null, 2));
     }
+  }
+
+  /**
+   * Sets the daemon process PID for the current session
+   */
+  setDaemonPid(pid: number) {
+    if (this.session) {
+      this.session.daemonPid = pid;
+      this.persist();
+    }
+  }
+
+  /**
+   * Gets the daemon process PID for the current session
+   */
+  getDaemonPid(): number | undefined {
+    return this.session?.daemonPid;
+  }
+
+  getLastArchivePath(): string | undefined {
+    return this.lastArchivePath;
   }
 }
 

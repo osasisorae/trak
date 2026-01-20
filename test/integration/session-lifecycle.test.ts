@@ -21,7 +21,8 @@ describe('Session Lifecycle Integration', () => {
     sessionManager = createSessionManager(tempDir)
     fileWatcher = createFileWatcher({
       patterns: ['**/*.ts', '**/*.js'],
-      ignored: ['node_modules/**', '.git/**']
+      ignored: ['node_modules/**', '.git/**'],
+      debounceMs: 50
     })
   })
 
@@ -50,11 +51,11 @@ describe('Session Lifecycle Integration', () => {
     // 3. Make file changes
     const testFile = join(tempDir, 'test.ts')
     await writeFile(testFile, 'console.log("test")')
-    await wait(100)
+    await wait(200)
 
     const testFile2 = join(tempDir, 'utils.ts')
     await writeFile(testFile2, 'export function helper() {}')
-    await wait(100)
+    await wait(200)
 
     // 4. Check session has tracked changes
     const currentSession = sessionManager.getSession()
@@ -74,7 +75,7 @@ describe('Session Lifecycle Integration', () => {
     
     // Add some file changes
     sessionManager.addChange({
-      path: join(tempDir, 'test.ts'),
+      path: 'test.ts',
       type: 'added',
       timestamp: new Date()
     })
@@ -85,6 +86,25 @@ describe('Session Lifecycle Integration', () => {
     // Should recover the active session
     expect(newSessionManager.isSessionActive()).toBe(true)
     const recoveredSession = newSessionManager.getSession()
+    expect(recoveredSession?.id).toBe(originalSession.id)
+    expect(recoveredSession?.changes.length).toBe(1)
+  })
+
+  it('should allow another process to append changes', () => {
+    // Start a session in one "process"
+    const originalSession = sessionManager.startSession()
+    expect(sessionManager.isSessionActive()).toBe(true)
+
+    // Append changes from another SessionManager instance (like the daemon)
+    const otherProcessSessionManager = createSessionManager(tempDir)
+    otherProcessSessionManager.addChange({
+      path: 'daemon-added.ts',
+      type: 'added',
+      timestamp: new Date()
+    })
+
+    // Read from a fresh SessionManager to simulate another process (CLI/status/etc.)
+    const recoveredSession = createSessionManager(tempDir).getSession()
     expect(recoveredSession?.id).toBe(originalSession.id)
     expect(recoveredSession?.changes.length).toBe(1)
   })

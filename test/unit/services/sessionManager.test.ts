@@ -1,16 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createSessionManager } from '../../src/services/sessionManager.js'
-import { createMockFileChange } from '../helpers/mock-factories.js'
-import { createTempDir, cleanupTempDir } from '../helpers/test-utils.js'
-
-// Mock fs/promises
-vi.mock('fs/promises', () => ({
-  writeFile: vi.fn(),
-  readFile: vi.fn(),
-  mkdir: vi.fn(),
-  readdir: vi.fn(),
-  stat: vi.fn()
-}))
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { createSessionManager } from '../../../src/services/sessionManager.js'
+import { createMockFileChange } from '../../helpers/mock-factories.js'
+import { createTempDir, cleanupTempDir } from '../../helpers/test-utils.js'
 
 describe('SessionManager Unit Tests', () => {
   let tempDir: string
@@ -33,11 +24,11 @@ describe('SessionManager Unit Tests', () => {
       expect(session).toMatchObject({
         id: expect.any(String),
         startTime: expect.any(Date),
-        endTime: undefined,
         cwd: expect.any(String),
         changes: [],
         status: 'active'
       })
+      expect(session.endTime).toBeUndefined()
       expect(sessionManager.isSessionActive()).toBe(true)
     })
 
@@ -74,7 +65,13 @@ describe('SessionManager Unit Tests', () => {
       sessionManager.addChange(fileChange)
       
       const session = sessionManager.getSession()
-      expect(session?.changes).toContain(fileChange)
+      expect(session?.changes).toHaveLength(1)
+      expect(session?.changes[0]).toMatchObject({
+        path: fileChange.path,
+        type: fileChange.type,
+        timestamp: fileChange.timestamp,
+        changeCount: 1
+      })
     })
 
     it('should not add file change if no active session', () => {

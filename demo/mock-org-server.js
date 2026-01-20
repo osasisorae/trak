@@ -1,8 +1,10 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 const port = 3001;
 
 app.use(express.json());
+app.use(express.static('public'));
 
 // Store received reports in memory for demo
 const reports = [];
@@ -44,8 +46,14 @@ app.get('/api/sessions', (req, res) => {
   });
 });
 
+// Serve dashboard
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
 app.listen(port, () => {
   console.log(`🏢 Mock Organization Server running on http://localhost:${port}`);
   console.log('📡 Ready to receive session reports from trak clients');
-  console.log('💡 Use TRAK_ORG_ENDPOINT=http://localhost:3001/report when logging in\n');
+  console.log('🌐 Dashboard available at http://localhost:3001');
+  console.log('💡 Use TRAK_ORG_ENDPOINT=http://localhost:3001 when logging in\n');
 });

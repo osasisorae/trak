@@ -1,48 +1,50 @@
 import { describe, it, expect } from 'vitest'
 import fc from 'fast-check'
-import type { Session, FileChange } from '../../src/types/index.js'
+import { deserializeSession, type Session, type SessionChange } from '../../src/services/sessionManager.js'
 
-// Arbitraries for property-based testing
-const fileChangeArbitrary = fc.record({
+const sessionChangeArbitrary: fc.Arbitrary<SessionChange> = fc.record({
   path: fc.string({ minLength: 1 }),
   type: fc.constantFrom('added', 'modified', 'deleted'),
-  timestamp: fc.date()
+  timestamp: fc.date(),
+  changeCount: fc.integer({ min: 1, max: 25 }),
 })
 
-const sessionArbitrary = fc.record({
-  id: fc.integer({ min: 1 }),
+const sessionArbitrary: fc.Arbitrary<Session> = fc.record({
+  id: fc.string({ minLength: 1 }),
   startTime: fc.date(),
-  endTime: fc.option(fc.date()),
-  files: fc.array(fileChangeArbitrary),
-  summary: fc.option(fc.string()),
+  endTime: fc.option(fc.date(), { nil: undefined }),
+  cwd: fc.string({ minLength: 1 }),
+  changes: fc.array(sessionChangeArbitrary),
+  status: fc.constantFrom('active', 'stopped'),
+  daemonPid: fc.option(fc.integer({ min: 1, max: 1_000_000 }), { nil: undefined }),
+  summary: fc.option(fc.string(), { nil: undefined }),
   analysis: fc.option(fc.record({
-    qualityScore: fc.integer({ min: 0, max: 100 }),
+    metrics: fc.record({
+      qualityScore: fc.integer({ min: 0, max: 100 }),
+      issueCount: fc.record({
+        high: fc.integer({ min: 0, max: 50 }),
+        medium: fc.integer({ min: 0, max: 50 }),
+        low: fc.integer({ min: 0, max: 50 }),
+      })
+    }),
     issues: fc.array(fc.record({
-      type: fc.string(),
-      severity: fc.constantFrom('low', 'medium', 'high'),
-      message: fc.string(),
-      file: fc.string(),
-      line: fc.integer({ min: 1 })
+      id: fc.string({ minLength: 1 }),
+      type: fc.string({ minLength: 1 }),
+      severity: fc.string({ minLength: 1 }),
+      filePath: fc.string({ minLength: 1 }),
+      lineNumber: fc.integer({ min: 1, max: 1_000_000 }),
+      description: fc.string({ minLength: 1 }),
+      suggestion: fc.string({ minLength: 1 }),
     }))
-  }))
+  }), { nil: undefined })
 })
 
 describe('Session Data Properties', () => {
   it('should serialize and deserialize sessions correctly', () => {
     fc.assert(fc.property(sessionArbitrary, (session) => {
       const serialized = JSON.stringify(session)
-      const deserialized = JSON.parse(serialized)
-      
-      // Convert date strings back to Date objects for comparison
-      deserialized.startTime = new Date(deserialized.startTime)
-      if (deserialized.endTime) {
-        deserialized.endTime = new Date(deserialized.endTime)
-      }
-      deserialized.files = deserialized.files.map((file: any) => ({
-        ...file,
-        timestamp: new Date(file.timestamp)
-      }))
-      
+      const deserialized = deserializeSession(JSON.parse(serialized))
+
       expect(deserialized).toEqual(session)
     }))
   })
@@ -65,19 +67,19 @@ describe('Session Data Properties', () => {
 
   it('should handle file change deduplication correctly', () => {
     fc.assert(fc.property(
-      fc.array(fileChangeArbitrary),
-      (fileChanges) => {
+      fc.array(sessionChangeArbitrary),
+      (changes) => {
         // Simulate deduplication logic
-        const uniqueFiles = new Map<string, FileChange>()
+        const uniqueFiles = new Map<string, SessionChange>()
         
-        fileChanges.forEach(change => {
+        changes.forEach(change => {
           uniqueFiles.set(change.path, change)
         })
         
         const deduplicated = Array.from(uniqueFiles.values())
         
         // Properties that should hold
-        expect(deduplicated.length).toBeLessThanOrEqual(fileChanges.length)
+        expect(deduplicated.length).toBeLessThanOrEqual(changes.length)
         
         // All paths should be unique
         const paths = deduplicated.map(f => f.path)

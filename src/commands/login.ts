@@ -80,7 +80,7 @@ export async function loginCommand(orgToken: string): Promise<void> {
     // Create config
     const config: TrakConfig = {
       orgToken: orgToken.trim(),
-      orgEndpoint: process.env.TRAK_ORG_ENDPOINT || 'https://api.trak.dev/report',
+      orgEndpoint: process.env.TRAK_ORG_ENDPOINT || 'https://api.trak.dev',
       developerId: developerId.trim(),
       developerName: developerName.trim(),
       lastLogin: new Date().toISOString()

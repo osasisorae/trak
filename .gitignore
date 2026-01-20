@@ -6,3 +6,12 @@ dist/
 *.tsbuildinfo
 coverage/
 .trak/
+.kiro/
+.qodo/
+
+# Local scratch files (repo root)
+/test-*.js
+/real-test.js
+/tracking-test.js
+/demo-tracked.js
+/chokidar-test-file*.js

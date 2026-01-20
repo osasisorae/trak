@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trak Demo Org Dashboard</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #0f1a2e;
+        --text: #e6edf6;
+        --muted: #a8b3c7;
+        --border: rgba(255, 255, 255, 0.08);
+        --primary: #14b8a6;
+        --danger: #ef4444;
+        --warn: #f59e0b;
+        --ok: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+        background: radial-gradient(1200px 500px at 10% 0%, rgba(20, 184, 166, 0.25), transparent 60%),
+          radial-gradient(900px 500px at 70% 10%, rgba(59, 130, 246, 0.18), transparent 55%), var(--bg);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 20px 56px;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 0.2px;
+      }
+
+      .sub {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn:hover {
+        border-color: rgba(20, 184, 166, 0.5);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 18px 0 18px;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        background: rgba(15, 26, 46, 0.8);
+        border-radius: 14px;
+        padding: 14px;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .metric-value {
+        margin-top: 6px;
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .table {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(15, 26, 46, 0.8);
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 0.8fr 0.7fr 3fr;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        align-items: center;
+      }
+
+      .row.header {
+        position: sticky;
+        top: 0;
+        background: rgba(15, 26, 46, 0.95);
+        z-index: 1;
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .pill.ok {
+        border-color: rgba(16, 185, 129, 0.35);
+        color: rgba(16, 185, 129, 1);
+      }
+      .pill.warn {
+        border-color: rgba(245, 158, 11, 0.35);
+        color: rgba(245, 158, 11, 1);
+      }
+      .pill.bad {
+        border-color: rgba(239, 68, 68, 0.35);
+        color: rgba(239, 68, 68, 1);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .summary {
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.35;
+        opacity: 0.95;
+      }
+
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .row {
+          grid-template-columns: 1.5fr 1fr 0.8fr 0.7fr;
+        }
+        .row .summary,
+        .row.header .summary {
+          display: none;
+        }
+      }
+
+      @media (max-width: 520px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .row {
+          grid-template-columns: 1fr;
+        }
+        .row.header {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <h1>Trak Demo Organization Dashboard</h1>
+          <p class="sub">Live view of session reports received by the mock server.</p>
+        </div>
+        <button class="btn" id="refreshBtn">Refresh</button>
+      </header>
+
+      <section class="grid">
+        <div class="card">
+          <div class="metric-label">Total Sessions</div>
+          <div class="metric-value" id="totalSessions">0</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Active Developers</div>
+          <div class="metric-value" id="activeDevelopers">0</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Average Quality</div>
+          <div class="metric-value" id="avgQuality">0</div>
+        </div>
+        <div class="card">
+          <div class="metric-label">Total Issues</div>
+          <div class="metric-value" id="totalIssues">0</div>
+        </div>
+      </section>
+
+      <section class="table">
+        <div class="row header">
+          <div>Developer</div>
+          <div>When</div>
+          <div>Duration</div>
+          <div>Quality</div>
+          <div class="summary">Summary</div>
+        </div>
+        <div id="rows"></div>
+      </section>
+
+      <p class="muted" style="margin-top: 12px">
+        Tip: run <code>cd demo && node mock-org-server.js</code> then configure <code>TRAK_ORG_ENDPOINT=http://localhost:3001</code>.
+      </p>
+    </div>
+
+    <script>
+      const el = (id) => document.getElementById(id);
+      const rowsEl = el("rows");
+
+      function scoreClass(score) {
+        if (score >= 80) return "ok";
+        if (score >= 60) return "warn";
+        return "bad";
+      }
+
+      function formatWhen(iso) {
+        try {
+          return new Date(iso).toLocaleString();
+        } catch {
+          return iso;
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function load() {
+        const res = await fetch("/api/sessions");
+        const data = await res.json();
+        const reports = Array.isArray(data.reports) ? data.reports : [];
+
+        const totalSessions = reports.length;
+        const activeDevelopers = new Set(reports.map((r) => r.developerId)).size;
+        const avgQuality =
+          reports.length > 0 ? Math.round(reports.reduce((sum, r) => sum + (r.qualityScore || 0), 0) / reports.length) : 0;
+        const totalIssues = reports.reduce((sum, r) => sum + (r.issues || 0), 0);
+
+        el("totalSessions").textContent = totalSessions;
+        el("activeDevelopers").textContent = activeDevelopers;
+        el("avgQuality").textContent = avgQuality;
+        el("totalIssues").textContent = totalIssues;
+
+        if (reports.length === 0) {
+          rowsEl.innerHTML =
+            '<div class="row"><div class="muted">No reports yet. Run a tracked session and stop it to send a report.</div></div>';
+          return;
+        }
+
+        rowsEl.innerHTML = reports
+          .slice()
+          .reverse()
+          .map((r) => {
+            const score = Number(r.qualityScore || 0);
+            const pill = `<span class="pill ${scoreClass(score)}">${score}/100</span>`;
+            const developer = `${escapeHtml(r.developerName || "Unknown")} <span class="muted">(${escapeHtml(
+              r.developerId || "unknown"
+            )})</span>`;
+            const summary = escapeHtml(r.summary || "");
+
+            return `
+              <div class="row">
+                <div>${developer}</div>
+                <div class="muted">${escapeHtml(formatWhen(r.timestamp || r.receivedAt || ""))}</div>
+                <div class="muted">${escapeHtml(r.duration || "")}</div>
+                <div>${pill} <span class="muted" style="margin-left:8px">${escapeHtml(String(r.issues || 0))} issues</span></div>
+                <div class="summary">${summary}</div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      el("refreshBtn").addEventListener("click", () => load());
+      load();
+      setInterval(load, 30_000);
+    </script>
+  </body>
+</html>

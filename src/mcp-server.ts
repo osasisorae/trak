@@ -8,11 +8,11 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { createSessionManager, deserializeSession } from './services/sessionManager.js';
 import { createSummaryGenerator } from './services/summaryGenerator.js';
-import { createCodeAnalyzer } from './services/codeAnalyzer.js';
-import { readdir, readFile } from 'fs/promises';
+import { readdir, readFile, writeFile, mkdir, unlink, chmod } from 'fs/promises';
 import { join } from 'path';
 import { Octokit } from '@octokit/rest';
 import { execSync } from 'child_process';
+import { homedir } from 'os';
 
 const server = new Server(
   {
@@ -126,6 +126,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['issueData', 'sessionId'],
         },
       },
+      {
+        name: 'trak_login',
+        description: 'Login to organization dashboard as a specific developer',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            orgToken: {
+              type: 'string',
+              description: 'Organization token (e.g., demo-token-123)',
+            },
+            developerName: {
+              type: 'string',
+              description: 'Developer name (e.g., John Doe)',
+            },
+            developerId: {
+              type: 'string',
+              description: 'Developer ID/email (e.g., john@company.com)',
+            },
+          },
+          required: ['orgToken', 'developerName', 'developerId'],
+        },
+      },
+      {
+        name: 'trak_logout',
+        description: 'Logout from organization dashboard',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
     ],
   };
 });
@@ -167,6 +197,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           args.sessionId as string,
           args.repoUrl as string | undefined
         );
+
+      case 'trak_login':
+        if (!args?.orgToken || !args?.developerName || !args?.developerId) {
+          throw new Error('orgToken, developerName, and developerId are required');
+        }
+        return await handleLogin(
+          args.orgToken as string,
+          args.developerName as string,
+          args.developerId as string
+        );
+
+      case 'trak_logout':
+        return await handleLogout();
 
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -238,9 +281,31 @@ async function handleStopSession() {
       };
     }
 
-    // Stop session and generate analysis
-    const stoppedSession = sessionManager.stopSession();
-    if (!stoppedSession) {
+    const summaryGenerator = createSummaryGenerator();
+
+    // Read file contents for analysis (same approach as CLI stop)
+    const fileContents = new Map<string, string>();
+    for (const change of session.changes) {
+      if (change.type !== 'deleted') {
+        const fullPath = join(session.cwd, change.path);
+        try {
+          const content = await readFile(fullPath, 'utf8');
+          fileContents.set(change.path, content);
+        } catch {
+          // Ignore read errors (file may not exist or may not be readable)
+        }
+      }
+    }
+    
+    // Generate summary and analysis together
+    const result = await summaryGenerator.generateSummary(session, fileContents);
+    
+    // Stop and persist session with analysis
+    const finalSession = sessionManager.stopSession({
+      summary: result.summary,
+      analysis: result.analysis,
+    });
+    if (!finalSession) {
       return {
         content: [
           {
@@ -254,22 +319,6 @@ async function handleStopSession() {
       };
     }
 
-    const codeAnalyzer = createCodeAnalyzer();
-    const summaryGenerator = createSummaryGenerator();
-
-    // Read file contents for analysis (simplified for MCP)
-    const fileContents = new Map<string, string>();
-    
-    // Generate summary and analysis together
-    const result = await summaryGenerator.generateSummary(stoppedSession, fileContents);
-    
-    // Create final session object
-    const finalSession = {
-      ...stoppedSession,
-      summary: result.summary,
-      analysis: result.analysis,
-    };
-
     return {
       content: [
         {
@@ -277,9 +326,9 @@ async function handleStopSession() {
           text: JSON.stringify({
             success: true,
             sessionId: finalSession.id,
-            summary: finalSession.summary,
-            qualityScore: finalSession.analysis.metrics.qualityScore,
-            issuesFound: finalSession.analysis.issues.length,
+            summary: result.summary,
+            qualityScore: result.analysis.metrics.qualityScore,
+            issuesFound: result.analysis.issues.length,
             duration: calculateDuration(
               finalSession.startTime instanceof Date 
                 ? finalSession.startTime.toISOString() 
@@ -288,7 +337,7 @@ async function handleStopSession() {
                 ? finalSession.endTime.toISOString() 
                 : finalSession.endTime || new Date().toISOString()
             ),
-            analysis: finalSession.analysis,
+            analysis: result.analysis,
           }, null, 2),
         },
       ],
@@ -674,6 +723,104 @@ function detectGitRepository(): string {
     throw new Error('Not a GitHub repository');
   } catch (error) {
     throw new Error('Could not detect Git repository');
+  }
+}
+
+async function handleLogin(orgToken: string, developerName: string, developerId: string) {
+  try {
+    const orgEndpoint = process.env.TRAK_ORG_ENDPOINT || 'https://api.trak.dev';
+    
+    // Create trak config directory if it doesn't exist
+    const trakDir = join(homedir(), '.trak');
+    await mkdir(trakDir, { recursive: true });
+    
+    // Create config object
+    const config = {
+      orgToken,
+      developerName,
+      developerId,
+      orgEndpoint,
+      lastLogin: new Date().toISOString(),
+    };
+    
+    // Save config to ~/.trak/config.json
+    const configPath = join(trakDir, 'config.json');
+    await writeFile(configPath, JSON.stringify(config, null, 2));
+    await chmod(configPath, 0o600);
+    
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            message: `Successfully logged in as ${developerName} (${developerId})`,
+            orgEndpoint,
+            lastLogin: config.lastLogin,
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to login',
+          }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+async function handleLogout() {
+  try {
+    const configPath = join(homedir(), '.trak', 'config.json');
+    
+    // Try to delete the config file
+    await unlink(configPath);
+    
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            message: 'Successfully logged out from organization dashboard',
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error) {
+    // If file doesn't exist, that's fine - user wasn't logged in
+    if ((error as any).code === 'ENOENT') {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: true,
+              message: 'No active login found',
+            }, null, 2),
+          },
+        ],
+      };
+    }
+    
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to logout',
+          }, null, 2),
+        },
+      ],
+    };
   }
 }
 

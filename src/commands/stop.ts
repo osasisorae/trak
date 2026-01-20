@@ -1,5 +1,5 @@
-import { readFileSync, existsSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, existsSync } from 'fs';
+import { join, relative } from 'path';
 import { createSessionManager } from '../services/sessionManager.js';
 import { createSummaryGenerator } from '../services/summaryGenerator.js';
 import { getTrakConfig } from './login.js';
@@ -13,6 +13,17 @@ export async function stopCommand() {
     process.exit(1);
   }
 
+  // Kill the daemon process
+  const daemonPid = sessionManager.getDaemonPid();
+  if (daemonPid) {
+    try {
+      process.kill(daemonPid, 'SIGTERM');
+      console.log('🛑 Stopped background tracker');
+    } catch (error) {
+      // Process might already be dead, that's okay
+    }
+  }
+
   const session = sessionManager.getSession();
   if (!session) {
     console.log('❌ No active session found.');
@@ -23,7 +34,7 @@ export async function stopCommand() {
 
   const fileContents = new Map<string, string>();
   for (const change of session.changes) {
-    if (change.type !== 'unlink') {
+    if (change.type !== 'deleted') {
       const fullPath = join(session.cwd, change.path);
       if (existsSync(fullPath)) {
         try {
@@ -37,14 +48,10 @@ export async function stopCommand() {
   const summaryGenerator = createSummaryGenerator();
   const { summary, analysis } = await summaryGenerator.generateSummary(session, fileContents);
 
-  const stoppedSession = sessionManager.stopSession();
+  const stoppedSession = sessionManager.stopSession({ summary, analysis });
   
   if (stoppedSession) {
-    const sessionWithAnalysis = { ...stoppedSession, summary, analysis };
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const sessionPath = join(session.cwd, '.trak', 'sessions', `${timestamp}-session.json`);
-    writeFileSync(sessionPath, JSON.stringify(sessionWithAnalysis, null, 2));
-
+    const archivePath = sessionManager.getLastArchivePath();
     const start = new Date(session.startTime);
     const end = new Date();
     const diffMs = end.getTime() - start.getTime();
@@ -52,9 +59,9 @@ export async function stopCommand() {
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     const duration = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
-    const added = session.changes.filter(c => c.type === 'add').length;
-    const modified = session.changes.filter(c => c.type === 'change').length;
-    const deleted = session.changes.filter(c => c.type === 'unlink').length;
+    const added = session.changes.filter(c => c.type === 'added').length;
+    const modified = session.changes.filter(c => c.type === 'modified').length;
+    const deleted = session.changes.filter(c => c.type === 'deleted').length;
 
     console.log('\n📊 Session Summary');
     console.log('─────────────────────');
@@ -82,16 +89,20 @@ export async function stopCommand() {
     }
     
     console.log('');
-    console.log(summary);
+    console.log(stoppedSession.summary);
     console.log('─────────────────────');
-    console.log(`✅ Session saved to .trak/sessions/${timestamp}-session.json`);
+    console.log(
+      `✅ Session saved to ${
+        archivePath ? relative(session.cwd, archivePath) : '.trak/sessions/'
+      }`
+    );
     
     // Send session report to organization if logged in
     try {
       const config = await getTrakConfig();
       if (config) {
         console.log('📤 Sending session report to organization...');
-        const reportSent = await sendSessionReport(sessionWithAnalysis, config);
+        const reportSent = await sendSessionReport(stoppedSession, config);
         if (reportSent) {
           console.log('✅ Session report sent to organization dashboard');
         }

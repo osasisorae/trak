@@ -1,9 +1,14 @@
-import { createFileWatcher } from '../services/fileWatcher.js';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { createSessionManager } from '../services/sessionManager.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 /**
- * Starts a new coding session and begins tracking file changes.
- * Prevents multiple active sessions and provides real-time feedback.
+ * Starts a new coding session and begins tracking file changes in the background.
+ * Spawns a detached daemon process to monitor file changes.
  */
 export async function startCommand() {
   const sessionManager = createSessionManager();
@@ -14,38 +19,23 @@ export async function startCommand() {
     process.exit(1);
   }
 
-  // Initialize session and file watcher
-  const session = sessionManager.startSession();
-  const watcher = createFileWatcher();
+  // Initialize session
+  sessionManager.startSession();
 
-  // Set up file change handler with visual feedback
-  watcher.onFileChange((change) => {
-    sessionManager.addChange(change);
-    
-    // Display change with appropriate icon
-    const icon = change.type === 'add' ? '➕' : change.type === 'unlink' ? '🗑️' : '📝';
-    const action = change.type === 'add' ? 'added' : change.type === 'unlink' ? 'deleted' : 'modified';
-    console.log(`${icon} ${change.path} (${action})`);
-    
-    // Show running count of tracked files
-    const currentSession = sessionManager.getSession();
-    if (currentSession) {
-      console.log(`   📊 ${currentSession.changes.length} files tracked`);
-    }
+  // Spawn detached daemon process
+  const daemonScript = join(__dirname, '../services/daemon.js');
+  const daemon = spawn('node', [daemonScript], {
+    detached: true,
+    stdio: 'ignore',
+    cwd: process.cwd()
   });
 
-  watcher.start();
+  // Store daemon PID in session
+  sessionManager.setDaemonPid(daemon.pid!);
+  
+  daemon.unref(); // Allow parent to exit
 
-  console.log('🟢 Session started. Tracking changes...');
-  console.log('   Press Ctrl+C or run \'trak stop\' to end session');
-
-  // Handle graceful shutdown on Ctrl+C
-  process.on('SIGINT', () => {
-    watcher.stop();
-    console.log('\nSession paused. Run \'trak stop\' to generate summary.');
-    process.exit(0);
-  });
-
-  // Keep the process running indefinitely
-  await new Promise(() => {});
+  console.log('🟢 Session started in background (PID: ' + daemon.pid + ')');
+  console.log('   Run \'trak status\' to check progress');
+  console.log('   Run \'trak stop\' to end session and generate summary');
 }

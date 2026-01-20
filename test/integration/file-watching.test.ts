@@ -12,7 +12,8 @@ describe('FileWatcher Integration', () => {
     tempDir = await createTempDir()
     fileWatcher = createFileWatcher({
       patterns: ['**/*.ts', '**/*.js'],
-      ignored: ['node_modules/**', '.git/**']
+      ignored: ['node_modules/**', '.git/**'],
+      debounceMs: 50
     })
   })
 
@@ -42,7 +43,7 @@ describe('FileWatcher Integration', () => {
     expect(changes.length).toBeGreaterThan(0)
     expect(changes[0]).toMatchObject({
       type: 'added',
-      path: testFile
+      path: 'test.ts'
     })
   })
 
@@ -66,7 +67,7 @@ describe('FileWatcher Integration', () => {
     expect(changes.length).toBeGreaterThan(0)
     expect(changes[0]).toMatchObject({
       type: 'modified',
-      path: testFile
+      path: 'test.ts'
     })
   })
 
@@ -99,8 +100,8 @@ describe('FileWatcher Integration', () => {
     await writeFile(testFile, 'version 2')
     await writeFile(testFile, 'version 3')
     
-    // Wait for debouncing to settle
-    await wait(200)
+    // Wait for debouncing/awaitWriteFinish to settle
+    await wait(300)
     
     // Should only get one change event due to debouncing
     expect(changes.length).toBeLessThanOrEqual(2)

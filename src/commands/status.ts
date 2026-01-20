@@ -47,9 +47,9 @@ export async function statusCommand() {
       ? `${minutes} minute${minutes > 1 ? 's' : ''} ago`
       : 'just now';
 
-  const added = session.changes.filter(c => c.type === 'add').length;
-  const modified = session.changes.filter(c => c.type === 'change').length;
-  const deleted = session.changes.filter(c => c.type === 'unlink').length;
+  const added = session.changes.filter(c => c.type === 'added').length;
+  const modified = session.changes.filter(c => c.type === 'modified').length;
+  const deleted = session.changes.filter(c => c.type === 'deleted').length;
 
   console.log('📍 Active Session');
   console.log('─────────────────────');
@@ -70,7 +70,7 @@ export async function statusCommand() {
       .slice(0, 5);
     
     for (const change of recent) {
-      const icon = change.type === 'add' ? '➕' : change.type === 'unlink' ? '🗑️' : '📝';
+      const icon = change.type === 'added' ? '➕' : change.type === 'deleted' ? '🗑️' : '📝';
       console.log(`  ${icon} ${change.path}`);
     }
   }

@@ -43,8 +43,9 @@ trak start
 
 **Expected output:**
 ```
-🟢 Session started. Tracking changes...
-Press Ctrl+C or run 'trak stop' to end session
+🟢 Session started in background (PID: 12345)
+   Run 'trak status' to check progress
+   Run 'trak stop' to end session and generate summary
 ```
 
 #### Make Some Code Changes
@@ -85,6 +86,7 @@ trak stop
 
 **Expected output:**
 ```
+🛑 Stopped background tracker
 ⏳ Analyzing code and generating summary...
 
 📊 Session Summary
@@ -104,7 +106,7 @@ Files: 1 added, 0 modified, 0 deleted
    🟡 error-handling: Missing return statement in function
       📁 demo-code.js:4
 
-✅ Session saved to .trak/sessions/2026-01-17-session.json
+✅ Session saved to .trak/sessions/2026-01-17T12-34-56-session.json
 💡 Run "trak dev" to view detailed analysis in the dashboard
 ```
 
