@@ -6,7 +6,6 @@ dist/
 *.tsbuildinfo
 coverage/
 .trak/
-.kiro/
 .qodo/
 
 # Local scratch files (repo root)
