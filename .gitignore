@@ -8,6 +8,9 @@ coverage/
 .trak/
 .qodo/
 
+# Demo artifacts (local only)
+docs/images/screenshots/
+
 # Local scratch files (repo root)
 /test-*.js
 /real-test.js

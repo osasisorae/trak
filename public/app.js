@@ -1,13 +1,17 @@
 class Dashboard {
     constructor() {
         this.currentSession = null;
+        this.currentActiveSession = null;
         this.sessions = [];
         this.currentFilter = 'all';
         this.isLoading = false;
+        this.searchQuery = '';
+        this.sortMode = 'newest';
         this.init();
     }
 
     async init() {
+        await this.loadCurrentSession();
         await this.loadSessions();
         this.setupEventListeners();
         this.startAutoRefresh();
@@ -33,6 +37,24 @@ class Dashboard {
         }
     }
 
+    async loadCurrentSession() {
+        try {
+            const response = await fetch('/api/current');
+            const session = await response.json();
+            this.currentActiveSession = session && session.status === 'active' ? session : null;
+        } catch {
+            this.currentActiveSession = null;
+        }
+
+        this.renderCurrentSessionCard();
+
+        // Keep the details panel live if viewing the current session.
+        if (this.currentSession && this.currentSession.status === 'active') {
+            this.currentSession = this.currentActiveSession;
+            if (this.currentSession) this.renderSessionDetails();
+        }
+    }
+
     renderSessions() {
         const container = document.getElementById('sessions-list');
         
@@ -47,7 +69,19 @@ class Dashboard {
             return;
         }
 
-        container.innerHTML = this.sessions.map(session => {
+        const sessions = this.applySearchAndSort(this.sessions);
+        if (sessions.length === 0) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="empty-icon">🔎</div>
+                    <p>No sessions match your search</p>
+                    <small>Try clearing the search box</small>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = sessions.map(session => {
             const duration = this.calculateSessionDuration(session);
             const totalIssues = (session.issueCount?.high || 0) + (session.issueCount?.medium || 0) + (session.issueCount?.low || 0);
             
@@ -77,6 +111,34 @@ class Dashboard {
         }).join('');
     }
 
+    renderCurrentSessionCard() {
+        const container = document.getElementById('current-session-card');
+        if (!container) return;
+
+        const session = this.currentActiveSession;
+        if (!session) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const started = this.formatDate(session.startTime);
+        const elapsed = this.calculateDuration(session.startTime, new Date().toISOString());
+        const files = Array.isArray(session.changes) ? session.changes.length : 0;
+
+        container.innerHTML = `
+            <div class="current-session-card" data-id="current">
+                <div class="current-session-title">
+                    <h3>Active session</h3>
+                    <span class="current-session-pill">LIVE</span>
+                </div>
+                <div class="current-session-meta">
+                    <span>Started: ${started}</span>
+                    <span>${elapsed} · ${files} files</span>
+                </div>
+            </div>
+        `;
+    }
+
     async loadSessionDetails(sessionId) {
         try {
             const response = await fetch(`/api/sessions/${sessionId}`);
@@ -88,19 +150,32 @@ class Dashboard {
         }
     }
 
+    loadActiveSessionDetails() {
+        if (!this.currentActiveSession) return;
+        this.currentSession = this.currentActiveSession;
+        this.currentFilter = 'all';
+        this.renderSessionDetails();
+        this.highlightActiveSession('current');
+    }
+
     renderSessionDetails() {
         const container = document.getElementById('session-details');
         const session = this.currentSession;
 
         if (!session) return;
 
+        const isActive = session.status === 'active';
         const duration = session.endTime 
             ? this.calculateDuration(session.startTime, session.endTime)
-            : 'Active';
+            : this.calculateDuration(session.startTime, new Date().toISOString());
 
-        const qualityScore = session.analysis?.metrics?.qualityScore || 0;
+        const qualityScore = session.analysis?.metrics?.qualityScore;
         const issues = session.analysis?.issues || [];
         const totalIssues = issues.length;
+        const qualityClass = isActive ? 'medium' : this.getScoreClass(qualityScore || 0);
+        const qualityText = isActive ? '—' : `${qualityScore || 0}/100`;
+        const issuesText = isActive ? '—' : `${totalIssues}`;
+        const qualityIcon = isActive ? '⏳' : this.getScoreIcon(qualityScore || 0);
 
         container.innerHTML = `
             <div class="session-header-section">
@@ -113,9 +188,9 @@ class Dashboard {
                         <div class="value">${duration}</div>
                     </div>
                     <div class="stat-card quality-score-card">
-                        <div class="stat-icon">${this.getScoreIcon(qualityScore)}</div>
+                        <div class="stat-icon">${qualityIcon}</div>
                         <h4>Quality Score</h4>
-                        <div class="value quality-badge ${this.getScoreClass(qualityScore)}">${qualityScore}/100</div>
+                        <div class="value quality-badge ${qualityClass}">${qualityText}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">📁</div>
@@ -125,20 +200,17 @@ class Dashboard {
                     <div class="stat-card">
                         <div class="stat-icon">🔍</div>
                         <h4>Issues Found</h4>
-                        <div class="value">${totalIssues}</div>
+                        <div class="value">${issuesText}</div>
                     </div>
                 </div>
             </div>
 
-            ${session.summary ? `
-                <div class="summary-section">
-                    <h3>📝 Session Summary</h3>
-                    <p>${session.summary}</p>
-                </div>
-            ` : ''}
+            <div class="summary-section">
+                <h3>📝 Session Summary</h3>
+                <p>${session.summary || (isActive ? 'Tracking in progress. Run <code>trak stop</code> to generate summary and code quality analysis.' : 'No summary available.')}</p>
+            </div>
 
-            ${this.renderFilters()}
-            ${this.renderIssues()}
+            ${isActive ? this.renderActiveNotice() : `${this.renderFilters()}${this.renderIssues()}`}
             ${this.renderChanges()}
         `;
     }
@@ -211,6 +283,16 @@ class Dashboard {
         `;
     }
 
+    renderActiveNotice() {
+        return `
+            <div class="no-issues-state">
+                <div class="celebration">🟢</div>
+                <h3>Session is active</h3>
+                <p>Trak is tracking file changes. Stop the session to generate issues and a calibrated quality score.</p>
+            </div>
+        `;
+    }
+
     renderChanges() {
         const changes = this.currentSession?.changes || [];
         
@@ -239,16 +321,31 @@ class Dashboard {
                 this.loadSessionDetails(sessionId);
             }
 
+            if (e.target.closest('.current-session-card')) {
+                this.loadActiveSessionDetails();
+            }
+
             if (e.target.classList.contains('filter-btn')) {
                 this.currentFilter = e.target.dataset.filter;
                 this.renderSessionDetails();
             }
         });
-    }
 
-    createGitHubIssue(issueId) {
-        // Placeholder for GitHub issue creation
-        alert('GitHub issue creation will be implemented in the next phase!');
+        const searchInput = document.getElementById('session-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.searchQuery = e.target.value || '';
+                this.renderSessions();
+            });
+        }
+
+        const sortSelect = document.getElementById('session-sort');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                this.sortMode = e.target.value || 'newest';
+                this.renderSessions();
+            });
+        }
     }
 
     async showGitHubModal(issueId) {
@@ -382,7 +479,7 @@ class Dashboard {
     }
 
     highlightActiveSession(sessionId) {
-        document.querySelectorAll('.session-card').forEach(card => {
+        document.querySelectorAll('.session-card, .current-session-card').forEach(card => {
             card.classList.remove('active');
         });
         document.querySelector(`[data-id="${sessionId}"]`)?.classList.add('active');
@@ -446,8 +543,16 @@ class Dashboard {
     }
 
     getChangeIcon(type) {
+        const normalized = this.normalizeChangeType(type);
         const icons = { add: '➕', modify: '✏️', delete: '🗑️' };
-        return icons[type] || '📄';
+        return icons[normalized] || '📄';
+    }
+
+    normalizeChangeType(type) {
+        if (type === 'added' || type === 'add') return 'add';
+        if (type === 'modified' || type === 'modify') return 'modify';
+        if (type === 'deleted' || type === 'delete') return 'delete';
+        return String(type || '');
     }
 
     calculateSessionDuration(session) {
@@ -495,9 +600,53 @@ class Dashboard {
         `;
     }
 
+    applySearchAndSort(sessions) {
+        const q = String(this.searchQuery || '').trim().toLowerCase();
+        let filtered = sessions;
+
+        if (q) {
+            filtered = sessions.filter((s) => {
+                const hay = [
+                    s.id,
+                    s.startTime,
+                    s.endTime,
+                    s.status,
+                    s.summary || '',
+                    String(s.qualityScore || ''),
+                ].join(' ').toLowerCase();
+                return hay.includes(q);
+            });
+        }
+
+        const issueTotal = (s) => (s.issueCount?.high || 0) + (s.issueCount?.medium || 0) + (s.issueCount?.low || 0);
+        const sorted = filtered.slice();
+
+        switch (this.sortMode) {
+            case 'oldest':
+                sorted.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+                break;
+            case 'quality_high':
+                sorted.sort((a, b) => (b.qualityScore || 0) - (a.qualityScore || 0));
+                break;
+            case 'quality_low':
+                sorted.sort((a, b) => (a.qualityScore || 0) - (b.qualityScore || 0));
+                break;
+            case 'issues_high':
+                sorted.sort((a, b) => issueTotal(b) - issueTotal(a));
+                break;
+            case 'newest':
+            default:
+                sorted.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+                break;
+        }
+
+        return sorted;
+    }
+
     startAutoRefresh() {
         setInterval(() => {
             if (!this.isLoading) {
+                this.loadCurrentSession();
                 this.loadSessions();
             }
         }, 5000);

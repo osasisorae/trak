@@ -4,8 +4,8 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { Octokit } from '@octokit/rest';
-import { execSync } from 'child_process';
 import { deserializeSession, Session } from './sessionManager.js';
+import { detectGitHubRepo } from './gitRepo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +36,7 @@ export async function createDashboardServer() {
                         startTime: session.startTime.toISOString(),
                         endTime: session.endTime?.toISOString(),
                         status: session.status,
+                        summary: session.summary || '',
                         qualityScore: session.analysis?.metrics?.qualityScore || 0,
                         issueCount: session.analysis?.metrics?.issueCount || { high: 0, medium: 0, low: 0 }
                     };
@@ -46,7 +47,11 @@ export async function createDashboardServer() {
             sessions.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
             
             res.json(sessions);
-        } catch (error) {
+        } catch (error: any) {
+            if (error?.code === 'ENOENT') {
+                res.json([]);
+                return;
+            }
             res.status(500).json({ error: 'Failed to load sessions' });
         }
     });
@@ -73,7 +78,11 @@ export async function createDashboardServer() {
             }
             
             res.status(404).json({ error: 'Session not found' });
-        } catch (error) {
+        } catch (error: any) {
+            if (error?.code === 'ENOENT') {
+                res.status(404).json({ error: 'Session not found' });
+                return;
+            }
             res.status(500).json({ error: 'Failed to load session' });
         }
     });
@@ -276,25 +285,7 @@ function getIssueLabels(issueData: any): string[] {
 }
 
 function detectGitRepository(): string {
-    try {
-        // Get the remote origin URL
-        const remoteUrl = execSync('git remote get-url origin', { 
-            encoding: 'utf8',
-            cwd: process.cwd()
-        }).trim();
-        
-        // Parse GitHub URL formats:
-        // https://github.com/owner/repo.git
-        // git@github.com:owner/repo.git
-        // https://github.com/owner/repo
-        
-        let match = remoteUrl.match(/github\.com[\/:]([^\/]+)\/([^\/]+?)(?:\.git)?$/);
-        if (match) {
-            return `${match[1]}/${match[2]}`;
-        }
-        
-        throw new Error('Not a GitHub repository');
-    } catch (error) {
-        throw new Error('Could not detect Git repository');
-    }
+    const info = detectGitHubRepo(process.cwd());
+    if (!info) throw new Error('Could not detect Git repository');
+    return info.fullName;
 }

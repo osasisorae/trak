@@ -11,8 +11,15 @@ import { createSummaryGenerator } from './services/summaryGenerator.js';
 import { readdir, readFile, writeFile, mkdir, unlink, chmod } from 'fs/promises';
 import { join } from 'path';
 import { Octokit } from '@octokit/rest';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { homedir } from 'os';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+let activeCwd: string | undefined;
 
 const server = new Server(
   {
@@ -48,7 +55,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'Stop tracking session and generate AI analysis',
         inputSchema: {
           type: 'object',
-          properties: {},
+          properties: {
+            cwd: {
+              type: 'string',
+              description: 'Working directory to stop the active session in (optional; defaults to the last started cwd or current directory)',
+            },
+          },
         },
       },
       {
@@ -56,7 +68,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'Get current session status',
         inputSchema: {
           type: 'object',
-          properties: {},
+          properties: {
+            cwd: {
+              type: 'string',
+              description: 'Working directory to read session status from (optional; defaults to the last started cwd or current directory)',
+            },
+          },
         },
       },
       {
@@ -65,6 +82,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: 'object',
           properties: {
+            cwd: {
+              type: 'string',
+              description: 'Working directory to read session history from (optional; defaults to the last started cwd or current directory)',
+            },
             limit: {
               type: 'number',
               description: 'Maximum number of sessions to return (default: 10)',
@@ -86,6 +107,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: 'object',
           properties: {
+            cwd: {
+              type: 'string',
+              description: 'Working directory to read session history from (optional; defaults to the last started cwd or current directory)',
+            },
             sessionId: {
               type: 'string',
               description: 'Session ID to analyze',
@@ -100,6 +125,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: 'object',
           properties: {
+            cwd: {
+              type: 'string',
+              description: 'Working directory to auto-detect repo from (optional; defaults to the last started cwd or current directory)',
+            },
             issueData: {
               type: 'object',
               description: 'The detected issue data',
@@ -170,13 +199,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleStartSession(args?.cwd as string | undefined);
 
       case 'trak_stop_session':
-        return await handleStopSession();
+        return await handleStopSession(args?.cwd as string | undefined);
 
       case 'trak_get_status':
-        return await handleGetStatus();
+        return await handleGetStatus(args?.cwd as string | undefined);
 
       case 'trak_get_session_history':
         return await handleGetSessionHistory(
+          args?.cwd as string | undefined,
           args?.limit as number | undefined, 
           args?.dateFrom as string | undefined, 
           args?.dateTo as string | undefined
@@ -186,7 +216,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!args?.sessionId) {
           throw new Error('sessionId is required');
         }
-        return await handleAnalyzeSession(args.sessionId as string);
+        return await handleAnalyzeSession(args.sessionId as string, args?.cwd as string | undefined);
 
       case 'trak_create_github_issue':
         if (!args?.issueData || !args?.sessionId) {
@@ -195,7 +225,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleCreateGitHubIssue(
           args.issueData as any,
           args.sessionId as string,
-          args.repoUrl as string | undefined
+          args.repoUrl as string | undefined,
+          args?.cwd as string | undefined
         );
 
       case 'trak_login':
@@ -227,10 +258,40 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function handleStartSession(cwd?: string) {
-  const sessionManager = createSessionManager(cwd);
+  const effectiveCwd = cwd || process.cwd();
+  const sessionManager = createSessionManager(effectiveCwd);
   
   try {
+    // Prevent multiple active sessions in the same cwd
+    if (sessionManager.isSessionActive()) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              error: 'Session already active in this directory. Stop it first.',
+              cwd: effectiveCwd,
+            }, null, 2),
+          },
+        ],
+      };
+    }
+
     const session = sessionManager.startSession();
+
+    // Spawn detached daemon process (same behavior as CLI `trak start`)
+    const daemonScript = join(__dirname, 'services/daemon.js');
+    const daemon = spawn('node', [daemonScript], {
+      detached: true,
+      stdio: 'ignore',
+      cwd: effectiveCwd,
+    });
+    sessionManager.setDaemonPid(daemon.pid!);
+    daemon.unref();
+
+    activeCwd = effectiveCwd;
+
     return {
       content: [
         {
@@ -243,6 +304,7 @@ async function handleStartSession(cwd?: string) {
               ? session.startTime.toISOString() 
               : session.startTime,
             cwd: session.cwd,
+            daemonPid: daemon.pid,
           }, null, 2),
         },
       ],
@@ -262,8 +324,13 @@ async function handleStartSession(cwd?: string) {
   }
 }
 
-async function handleStopSession() {
-  const sessionManager = createSessionManager();
+function resolveCwd(cwd?: string): string {
+  return cwd || activeCwd || process.cwd();
+}
+
+async function handleStopSession(cwd?: string) {
+  const effectiveCwd = resolveCwd(cwd);
+  const sessionManager = createSessionManager(effectiveCwd);
   
   try {
     const session = sessionManager.getSession();
@@ -275,10 +342,22 @@ async function handleStopSession() {
             text: JSON.stringify({
               success: false,
               error: 'No active session found',
+              cwd: effectiveCwd,
+              hint: 'Start a session first, or pass { "cwd": "/path/to/repo" }.',
             }, null, 2),
           },
         ],
       };
+    }
+
+    // Kill the daemon process (if any)
+    const daemonPid = session.daemonPid;
+    if (daemonPid) {
+      try {
+        process.kill(daemonPid, 'SIGTERM');
+      } catch {
+        // ignore
+      }
     }
 
     const summaryGenerator = createSummaryGenerator();
@@ -338,6 +417,7 @@ async function handleStopSession() {
                 : finalSession.endTime || new Date().toISOString()
             ),
             analysis: result.analysis,
+            cwd: effectiveCwd,
           }, null, 2),
         },
       ],
@@ -357,8 +437,9 @@ async function handleStopSession() {
   }
 }
 
-async function handleGetStatus() {
-  const sessionManager = createSessionManager();
+async function handleGetStatus(cwd?: string) {
+  const effectiveCwd = resolveCwd(cwd);
+  const sessionManager = createSessionManager(effectiveCwd);
   
   try {
     const session = sessionManager.getSession();
@@ -371,6 +452,7 @@ async function handleGetStatus() {
             text: JSON.stringify({
               active: false,
               message: 'No active session',
+              cwd: effectiveCwd,
             }, null, 2),
           },
         ],
@@ -395,6 +477,7 @@ async function handleGetStatus() {
             filesChanged: session.changes.length,
             startTime: startTimeStr,
             cwd: session.cwd,
+            daemonPid: session.daemonPid,
           }, null, 2),
         },
       ],
@@ -414,9 +497,10 @@ async function handleGetStatus() {
   }
 }
 
-async function handleGetSessionHistory(limit = 10, dateFrom?: string, dateTo?: string) {
+async function handleGetSessionHistory(cwd?: string, limit = 10, dateFrom?: string, dateTo?: string) {
   try {
-    const sessionsDir = join(process.cwd(), '.trak/sessions');
+    const effectiveCwd = resolveCwd(cwd);
+    const sessionsDir = join(effectiveCwd, '.trak/sessions');
     const files = await readdir(sessionsDir);
     const sessionFiles = files.filter(f => f.endsWith('.json'));
     
@@ -462,6 +546,7 @@ async function handleGetSessionHistory(limit = 10, dateFrom?: string, dateTo?: s
             sessions: formattedSessions,
             total: formattedSessions.length,
             filtered: dateFrom || dateTo ? true : false,
+            cwd: effectiveCwd,
           }, null, 2),
         },
       ],
@@ -481,9 +566,10 @@ async function handleGetSessionHistory(limit = 10, dateFrom?: string, dateTo?: s
   }
 }
 
-async function handleAnalyzeSession(sessionId: string) {
+async function handleAnalyzeSession(sessionId: string, cwd?: string) {
   try {
-    const sessionsDir = join(process.cwd(), '.trak/sessions');
+    const effectiveCwd = resolveCwd(cwd);
+    const sessionsDir = join(effectiveCwd, '.trak/sessions');
     const files = await readdir(sessionsDir);
     
     for (const file of files) {
@@ -508,6 +594,7 @@ async function handleAnalyzeSession(sessionId: string) {
           type: 'text',
           text: JSON.stringify({
             error: `Session with ID ${sessionId} not found`,
+            cwd: effectiveCwd,
           }, null, 2),
         },
       ],
@@ -537,7 +624,7 @@ function calculateDuration(start: string, end: string): string {
   return `${minutes}m`;
 }
 
-async function handleCreateGitHubIssue(issueData: any, sessionId: string, repoUrl?: string) {
+async function handleCreateGitHubIssue(issueData: any, sessionId: string, repoUrl?: string, cwd?: string) {
   try {
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
@@ -558,7 +645,7 @@ async function handleCreateGitHubIssue(issueData: any, sessionId: string, repoUr
     let finalRepoUrl = repoUrl;
     if (!finalRepoUrl) {
       try {
-        finalRepoUrl = detectGitRepository();
+        finalRepoUrl = detectGitRepositoryFromCwd(resolveCwd(cwd));
       } catch (error) {
         return {
           content: [
@@ -704,10 +791,20 @@ function getIssueLabels(issueData: any): string[] {
 
 function detectGitRepository(): string {
   try {
+    // Backwards compatible default to current process cwd
+    return detectGitRepositoryFromCwd(process.cwd());
+  } catch {
+    throw new Error('Could not detect Git repository');
+  }
+}
+
+function detectGitRepositoryFromCwd(cwd: string): string {
+  try {
     // Get the remote origin URL
     const remoteUrl = execSync('git remote get-url origin', { 
       encoding: 'utf8',
-      cwd: process.cwd()
+      cwd,
+      stdio: ['ignore', 'pipe', 'ignore']
     }).trim();
     
     // Parse GitHub URL formats:

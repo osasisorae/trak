@@ -38,9 +38,20 @@
         <main class="main-content">
             <aside class="sessions-panel">
                 <div class="panel-header">
-                    <h2>📊 Sessions</h2>
+                    <h2>Sessions</h2>
                     <div class="refresh-indicator" id="refresh-indicator">●</div>
                 </div>
+                <div class="panel-controls">
+                    <input id="session-search" class="control-input" placeholder="Search sessions (summary, files, date)..." />
+                    <select id="session-sort" class="control-input">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="quality_high">Highest quality</option>
+                        <option value="quality_low">Lowest quality</option>
+                        <option value="issues_high">Most issues</option>
+                    </select>
+                </div>
+                <div id="current-session-card"></div>
                 <div id="sessions-list" class="sessions-list">
                     <div class="loading-state">
                         <div class="spinner"></div>

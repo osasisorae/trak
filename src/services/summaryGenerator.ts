@@ -38,7 +38,7 @@ export class SummaryGenerator {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert software developer assistant that analyzes coding sessions and generates concise, meaningful summaries. Focus on what was built, fixed, or improved. Include insights from code analysis when available.'
+            content: 'You are an expert software developer assistant that summarizes coding sessions for both developers and managers. Be concrete, avoid speculation, and ground the summary in the provided change list and analysis. Keep it short and high-signal.'
           },
           {
             role: 'user',
@@ -86,7 +86,11 @@ ${analysisInsights}
 **Sample File Contents** (first 2 files):
 ${fileContentsSample}
 
-Provide a brief summary (2-3 sentences) of what was accomplished in this session. Include any notable code quality insights from the analysis.`;
+Output format:
+1) 2–4 bullet points describing what changed and why it matters.
+2) One final line: "Quality: <score>/100 — <high/med/low issue counts> — <top 1–2 issue types or 'no issues'>".
+
+Do not invent features; if details aren’t present, say so briefly.`;
   }
 
   private formatDuration(session: Session): string {
