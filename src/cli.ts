@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+import { config } from 'dotenv';
 import { Command } from 'commander';
+
+config();
 import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { statusCommand } from './commands/status.js';

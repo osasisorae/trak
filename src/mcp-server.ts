@@ -196,7 +196,9 @@ async function handleStartSession(cwd?: string) {
             success: true,
             sessionId: session.id,
             message: `Session started. Tracking changes in ${session.cwd}`,
-            startTime: session.startTime.toISOString(),
+            startTime: session.startTime instanceof Date 
+              ? session.startTime.toISOString() 
+              : session.startTime,
             cwd: session.cwd,
           }, null, 2),
         },
@@ -278,7 +280,14 @@ async function handleStopSession() {
             summary: finalSession.summary,
             qualityScore: finalSession.analysis.metrics.qualityScore,
             issuesFound: finalSession.analysis.issues.length,
-            duration: calculateDuration(finalSession.startTime.toISOString(), finalSession.endTime?.toISOString() || new Date().toISOString()),
+            duration: calculateDuration(
+              finalSession.startTime instanceof Date 
+                ? finalSession.startTime.toISOString() 
+                : finalSession.startTime,
+              finalSession.endTime instanceof Date 
+                ? finalSession.endTime.toISOString() 
+                : finalSession.endTime || new Date().toISOString()
+            ),
             analysis: finalSession.analysis,
           }, null, 2),
         },
@@ -319,7 +328,12 @@ async function handleGetStatus() {
       };
     }
 
-    const duration = calculateDuration(session.startTime.toISOString(), new Date().toISOString());
+    // Handle both Date objects and strings
+    const startTimeStr = session.startTime instanceof Date 
+      ? session.startTime.toISOString() 
+      : session.startTime;
+    
+    const duration = calculateDuration(startTimeStr, new Date().toISOString());
     
     return {
       content: [
@@ -330,7 +344,7 @@ async function handleGetStatus() {
             sessionId: session.id,
             duration,
             filesChanged: session.changes.length,
-            startTime: session.startTime.toISOString(),
+            startTime: startTimeStr,
             cwd: session.cwd,
           }, null, 2),
         },
