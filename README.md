@@ -1,52 +1,22 @@
 # <img src="public/logo.svg" alt="Trak" width="120" height="40"> Trak - AI-Powered Development Tracking
 
-> **Track your coding sessions, analyze code quality, and enhance your development workflow with AI-powered insights.**
-
-Trak is an intelligent development tracking tool that monitors your coding sessions, analyzes code quality in real-time, and provides actionable insights to improve your development process. Built for individual developers and teams, trak seamlessly integrates with modern development workflows.
+Trak is an AI-powered development tracker that monitors your coding sessions and provides actionable code quality insights for individual developers and teams. Built with seamless AI assistant integration and modern development workflows in mind.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
-## ✨ Key Features
+## Key Capabilities
 
-🎯 **Smart Session Tracking**
-- Automatic file change monitoring during coding sessions
-- Real-time development activity detection
-- Session duration and productivity metrics
+- **Smart Session Tracking**: Automatic monitoring of coding sessions with productivity metrics
+- **AI Code Analysis**: Quality scoring (0-100) with actionable improvement suggestions  
+- **Team Integration**: Organization dashboards and automated reporting
+- **AI Assistant Ready**: MCP server for seamless integration with Kiro CLI and other AI tools
+- **GitHub Integration**: One-click issue creation from detected code problems
 
-🔍 **AI-Powered Code Analysis**
-- Quality scoring (0-100) with detailed metrics
-- Issue detection across multiple categories (security, performance, complexity)
-- Actionable suggestions for code improvements
-- Support for 18+ programming languages
+## Quick Start
 
-📊 **Beautiful Dashboard**
-- Modern, responsive web interface
-- Interactive session history and analytics
-- Real-time quality insights and trends
-- One-click GitHub issue creation
-
-🤖 **AI Assistant Integration**
-- Model Context Protocol (MCP) server for seamless AI integration
-- 6 powerful tools for automated development tracking
-- Perfect integration with Kiro CLI and other AI assistants
-
-🏢 **Organization Support**
-- Team dashboard integration
-- Automatic session reporting
-- Developer productivity insights
-- Privacy-focused (only metadata shared)
-
-🔗 **GitHub Integration**
-- Auto-detect repository from Git remote
-- Create issues directly from detected problems
-- Professional issue formatting with labels
-- Comprehensive error handling
-
-## 🚀 Quick Start
-
-### Installation
+Install and start tracking:
 
 ```bash
 # Clone and install
@@ -56,15 +26,14 @@ npm install
 npm run build
 npm link
 
-# Set up environment
-# Create .env file with your API keys
-# Add your OPENAI_API_KEY and GITHUB_TOKEN
+# Set up environment (add your API keys)
+cp .env.example .env
 ```
 
-### Basic Usage
+Start your first session:
 
 ```bash
-# Start tracking your coding session
+# Start tracking
 trak start
 
 # Make some code changes...
@@ -73,9 +42,17 @@ trak start
 # Stop and generate AI analysis
 trak stop
 
-# View detailed insights in dashboard
+# View insights in dashboard
 trak dev
 ```
+
+## Resources
+
+- 📚 [Complete Usage Guide](#-complete-usage-guide)
+- 🤖 [AI Assistant Integration](#-ai-assistant-integration-mcp)
+- 🔗 [Kiro CLI Integration](#-kiro-cli-integration)
+- 🏢 [Organization Dashboard](#-organization-dashboard-demo)
+- ⚙️ [Configuration](#️-configuration)
 
 ## 📖 Complete Usage Guide
 
@@ -384,8 +361,6 @@ trak stop
 
 ## ⚙️ Configuration
 
-### Environment Variables
-
 Create a `.env` file with your API keys:
 
 ```env
@@ -396,24 +371,13 @@ TRAK_ORG_ENDPOINT=https://api.trak.dev
 
 ### GitHub Integration
 
-To enable GitHub issue creation from the dashboard:
+For GitHub issue creation:
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens → **Tokens (classic)**
-2. Click "Generate new token (classic)" (**Important: Use classic tokens, not fine-grained**)
-3. Select scopes: `repo` (for private repos) or `public_repo` (for public repos only)
-4. Copy the token and add it to your `.env` file
+2. Generate a classic token with `repo` scope
+3. Add the token to your `.env` file
 
-### Troubleshooting GitHub Integration
-
-**Error: "Resource not accessible by personal access token"**
-
-This error occurs when using fine-grained tokens instead of classic tokens. To fix:
-
-1. **Use classic tokens**: Make sure you created a "Token (classic)" not a "Fine-grained personal access token"
-2. **Check token scopes**: Your token needs `repo` scope (full repository access) or `public_repo` scope (for public repositories only)
-3. **Regenerate token**: Go to GitHub Settings → Developer settings → Personal access tokens
-4. **Update .env file**: Replace the old token with the new one
-5. **Restart trak dev**: The server needs to restart to pick up the new token
+**Note**: Use classic tokens, not fine-grained tokens. The token needs `repo` scope for private repositories or `public_repo` for public repositories only.
 
 ## 🏗️ Architecture
 

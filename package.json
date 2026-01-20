@@ -1,5 +1,5 @@
 {
-  "name": "trak",
+  "name": "trak-dev",
   "version": "0.1.0",
   "description": "AI-powered development tracking tool that monitors coding sessions, analyzes code quality, and provides actionable insights for individual developers and teams",
   "keywords": [
@@ -24,15 +24,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/osasisorae/trak.git"
+    "url": "git+https://github.com/osasisorae/trak.git"
   },
   "bugs": {
     "url": "https://github.com/osasisorae/trak/issues"
   },
   "homepage": "https://github.com/osasisorae/trak#readme",
   "type": "module",
+  "files": [
+    "dist",
+    "public",
+    "README.md",
+    "LICENSE"
+  ],
   "bin": {
-    "trak": "./dist/cli.js"
+    "trak": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",

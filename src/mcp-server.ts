@@ -6,7 +6,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { createSessionManager } from './services/sessionManager.js';
+import { createSessionManager, deserializeSession } from './services/sessionManager.js';
 import { createSummaryGenerator } from './services/summaryGenerator.js';
 import { createCodeAnalyzer } from './services/codeAnalyzer.js';
 import { readdir, readFile } from 'fs/promises';
@@ -360,7 +360,7 @@ async function handleGetSessionHistory(limit = 10, dateFrom?: string, dateTo?: s
     let sessions = await Promise.all(
       sessionFiles.map(async (file) => {
         const content = await readFile(join(sessionsDir, file), 'utf8');
-        return JSON.parse(content);
+        return deserializeSession(JSON.parse(content));
       })
     );
 
@@ -425,7 +425,7 @@ async function handleAnalyzeSession(sessionId: string) {
     
     for (const file of files) {
       const content = await readFile(join(sessionsDir, file), 'utf8');
-      const session = JSON.parse(content);
+      const session = deserializeSession(JSON.parse(content));
       
       if (session.id === sessionId) {
         return {

@@ -32,6 +32,37 @@ export interface Session {
   changes: SessionChange[];
   /** Current status of the session */
   status: 'active' | 'stopped';
+  /** AI-generated summary of the session */
+  summary?: string;
+  /** AI analysis results */
+  analysis?: {
+    metrics: {
+      qualityScore: number;
+      issueCount: {
+        high: number;
+        medium: number;
+        low: number;
+      };
+    };
+    issues: Array<{
+      id: string;
+      type: string;
+      severity: string;
+      filePath: string;
+      lineNumber: number;
+      description: string;
+      suggestion: string;
+    }>;
+  };
+}
+
+/** Helper function to deserialize a session from JSON, converting date strings to Date objects */
+export function deserializeSession(data: any): Session {
+  return {
+    ...data,
+    startTime: new Date(data.startTime),
+    endTime: data.endTime ? new Date(data.endTime) : undefined,
+  };
 }
 
 /**
@@ -120,7 +151,8 @@ export class SessionManager {
       try {
         const data = readFileSync(this.currentSessionPath, 'utf-8');
         if (data.trim()) {
-          this.session = JSON.parse(data);
+          const parsed = JSON.parse(data);
+          this.session = deserializeSession(parsed);
           return this.session;
         }
       } catch {

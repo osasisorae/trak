@@ -1,0 +1,28 @@
+# Development files
+.trak/
+.kiro/
+.vscode/
+.git/
+.gitignore
+.env
+
+# Test files
+test-*.js
+debug-*.js
+
+# Source files (we only need dist)
+src/
+tsconfig.json
+
+# Demo files
+demo/
+
+# Documentation that's not needed in package
+DEMO.md
+DEMO_VIDEO_SCRIPT.md
+CONTRIBUTING.md
+docs/
+
+# Build artifacts
+*.log
+npm-debug.log*

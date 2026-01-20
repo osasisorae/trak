@@ -5,41 +5,10 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { Octokit } from '@octokit/rest';
 import { execSync } from 'child_process';
+import { deserializeSession, Session } from './sessionManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-interface Session {
-    id: string;
-    startTime: string;
-    endTime?: string;
-    status: string;
-    summary?: string;
-    analysis?: {
-        metrics: {
-            qualityScore: number;
-            issueCount: {
-                high: number;
-                medium: number;
-                low: number;
-            };
-        };
-        issues: Array<{
-            id: string;
-            type: string;
-            severity: string;
-            filePath: string;
-            lineNumber: number;
-            description: string;
-            suggestion: string;
-        }>;
-    };
-    changes: Array<{
-        path: string;
-        type: string;
-        timestamp: string;
-    }>;
-}
 
 export async function createDashboardServer() {
     const app = express();
@@ -61,11 +30,11 @@ export async function createDashboardServer() {
             const sessions = await Promise.all(
                 sessionFiles.map(async (file) => {
                     const content = await readFile(join(sessionsDir, file), 'utf8');
-                    const session: Session = JSON.parse(content);
+                    const session: Session = deserializeSession(JSON.parse(content));
                     return {
                         id: session.id,
-                        startTime: session.startTime,
-                        endTime: session.endTime,
+                        startTime: session.startTime.toISOString(),
+                        endTime: session.endTime?.toISOString(),
                         status: session.status,
                         qualityScore: session.analysis?.metrics?.qualityScore || 0,
                         issueCount: session.analysis?.metrics?.issueCount || { high: 0, medium: 0, low: 0 }
@@ -89,10 +58,16 @@ export async function createDashboardServer() {
             
             for (const file of files) {
                 const content = await readFile(join(sessionsDir, file), 'utf8');
-                const session: Session = JSON.parse(content);
+                const session: Session = deserializeSession(JSON.parse(content));
                 
                 if (session.id === req.params.id) {
-                    res.json(session);
+                    // Convert dates to strings for JSON response
+                    const responseSession = {
+                        ...session,
+                        startTime: session.startTime.toISOString(),
+                        endTime: session.endTime?.toISOString(),
+                    };
+                    res.json(responseSession);
                     return;
                 }
             }
@@ -107,8 +82,14 @@ export async function createDashboardServer() {
         try {
             const currentPath = join(process.cwd(), '.trak/current-session.json');
             const content = await readFile(currentPath, 'utf8');
-            const session: Session = JSON.parse(content);
-            res.json(session);
+            const session: Session = deserializeSession(JSON.parse(content));
+            // Convert dates to strings for JSON response
+            const responseSession = {
+                ...session,
+                startTime: session.startTime.toISOString(),
+                endTime: session.endTime?.toISOString(),
+            };
+            res.json(responseSession);
         } catch (error) {
             res.json(null);
         }
