@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { config } from 'dotenv';
 import type { Session } from './sessionManager.js';
+import { TrakError, ErrorCode, handleError, logError } from './errorHandler.js';
 
 config();
 
@@ -77,7 +78,8 @@ export class CodeAnalyzer {
 
       return this.parseAnalysisResponse(content, startTime);
     } catch (error) {
-      console.error('⚠️  Code analysis failed, using fallback');
+      const trakError = handleError(error, 'code analysis');
+      logError(trakError);
       return this.fallbackAnalysis(session, startTime);
     }
   }

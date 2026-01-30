@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { config } from 'dotenv';
 import type { Session } from './sessionManager.js';
+import { TrakError, ErrorCode, handleError, logError } from './errorHandler.js';
 import { createCodeAnalyzer, type AnalysisResult } from './codeAnalyzer.js';
 
 config();
@@ -51,7 +52,8 @@ export class SummaryGenerator {
 
       return response.choices[0]?.message?.content || this.fallbackSummary(session, analysis);
     } catch (error) {
-      console.error('⚠️  Summary generation failed, using fallback');
+      const trakError = handleError(error, 'summary generation');
+      logError(trakError);
       return this.fallbackSummary(session, analysis);
     }
   }
