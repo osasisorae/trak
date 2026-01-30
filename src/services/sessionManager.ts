@@ -2,6 +2,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
 import type { FileChange } from './fileWatcher.js';
+import { TrakError, ErrorCode, handleError, logError } from './errorHandler.js';
 
 /**
  * Represents a tracked file change within a session
@@ -174,8 +175,10 @@ export class SessionManager {
           this.session = deserializeSession(parsed);
           return this.session;
         }
-      } catch {
-        // Ignore parse errors - file might be corrupted
+      } catch (error) {
+        const trakError = handleError(error, 'loading session');
+        logError(trakError);
+        // Return null for corrupted files, don't crash
       }
     }
 
